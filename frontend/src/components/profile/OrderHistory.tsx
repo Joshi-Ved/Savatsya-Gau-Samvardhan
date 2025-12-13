@@ -19,6 +19,13 @@ interface Order {
   total: number;
   status: 'pending' | 'completed' | 'shipped' | 'delivered' | 'cancelled';
   paymentMethod: string;
+  shippingAddress?: {
+    label: string;
+    street: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -36,7 +43,7 @@ const OrderHistory = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       if (!token) {
         throw new Error('No authentication token found');
       }
@@ -198,7 +205,7 @@ const OrderHistory = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(order.status)} capitalize`}>
                   {order.status}
                 </span>
@@ -218,6 +225,15 @@ const OrderHistory = () => {
                   ))}
                 </div>
               </div>
+
+              {order.shippingAddress && (
+                <div className="mt-4 pt-3 border-t">
+                  <h4 className="font-medium text-sm mb-1">Shipping Address:</h4>
+                  <p className="text-sm text-gray-600">
+                    {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                  </p>
+                </div>
+              )}
 
               <div className="mt-4 pt-3 border-t flex justify-between items-center">
                 <span className="text-sm text-gray-600">

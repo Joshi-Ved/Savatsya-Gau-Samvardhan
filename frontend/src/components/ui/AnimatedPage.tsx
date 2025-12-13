@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AnimatedPageProps {
   children: React.ReactNode;
@@ -31,6 +32,13 @@ const pageTransition = {
 };
 
 const AnimatedPage: React.FC<AnimatedPageProps> = ({ children, className = '' }) => {
+  const { config } = useTheme();
+  const shouldAnimate = config.animations;
+
+  if (!shouldAnimate) {
+    return <div className={`w-full ${className}`}>{children}</div>;
+  }
+
   return (
     <motion.div
       initial="initial"

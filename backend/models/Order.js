@@ -11,6 +11,13 @@ const orderSchema = new mongoose.Schema({
   total: Number,
   status: { type: String, default: 'pending', enum: ['pending', 'completed', 'shipped', 'delivered', 'cancelled'] },
   paymentMethod: { type: String, default: 'UPI' },
+  shippingAddress: {
+    label: String,
+    street: String,
+    city: String,
+    state: String,
+    pincode: String
+  },
   orderNumber: { type: String, unique: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

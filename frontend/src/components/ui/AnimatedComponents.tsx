@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, MotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface AnimatedButtonProps extends MotionProps {
   children: React.ReactNode;
@@ -26,31 +27,49 @@ const AnimatedButton: React.FC<AnimatedButtonProps> = ({
   disabled = false,
   ...motionProps
 }) => {
+  const { config } = useTheme();
+  const shouldAnimate = config.animations;
+
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
-  
+
   const variantClasses = {
     primary: 'bg-sawatsya-earth hover:bg-sawatsya-wood text-white',
     secondary: 'bg-sawatsya-sand hover:bg-sawatsya-amber text-sawatsya-wood',
     ghost: 'hover:bg-sawatsya-cream text-sawatsya-wood',
   };
-  
+
   const sizeClasses = {
     sm: 'h-8 px-3 text-sm',
     md: 'h-10 px-4 py-2',
     lg: 'h-12 px-6 text-lg',
   };
 
+  const combinedClasses = cn(
+    baseClasses,
+    variantClasses[variant],
+    sizeClasses[size],
+    disabled && 'opacity-50 cursor-not-allowed',
+    className
+  );
+
+  if (!shouldAnimate) {
+    return (
+      <button
+        type={type}
+        disabled={disabled}
+        className={combinedClasses}
+        onClick={onClick}
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
     <motion.button
       type={type}
       disabled={disabled}
-      className={cn(
-        baseClasses,
-        variantClasses[variant],
-        sizeClasses[size],
-        disabled && 'opacity-50 cursor-not-allowed',
-        className
-      )}
+      className={combinedClasses}
       onClick={onClick}
       whileHover={{
         scale: 1.05,
@@ -86,12 +105,25 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
   delay = 0,
   ...motionProps
 }) => {
+  const { config } = useTheme();
+  const shouldAnimate = config.animations;
+
+  const combinedClasses = cn(
+    'rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden',
+    className
+  );
+
+  if (!shouldAnimate) {
+    return (
+      <div className={combinedClasses}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <motion.div
-      className={cn(
-        'rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden',
-        className
-      )}
+      className={combinedClasses}
       initial={{
         opacity: 0,
         y: 50,
@@ -134,8 +166,18 @@ const AnimatedText: React.FC<AnimatedTextProps> = ({
   delay = 0,
   ...motionProps
 }) => {
+  const { config } = useTheme();
+  const shouldAnimate = config.animations;
   const Component = variant;
-  
+
+  if (!shouldAnimate) {
+    return (
+      <Component className={className}>
+        {children}
+      </Component>
+    );
+  }
+
   return (
     <motion.div
       initial={{
@@ -174,6 +216,13 @@ const FloatingElement: React.FC<FloatingElementProps> = ({
   duration = 3,
   yOffset = 10,
 }) => {
+  const { config } = useTheme();
+  const shouldAnimate = config.animations;
+
+  if (!shouldAnimate) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
     <motion.div
       className={className}

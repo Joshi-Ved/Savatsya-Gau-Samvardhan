@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="bg-sawatsya-earth text-white pt-12 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,7 +15,7 @@ const Footer = () => {
               Pure, authentic incense sticks and A2 cow ghee made with traditional methods and love.
             </p>
           </div>
-          
+
           <div>
             <h4 className="font-medium mb-4">Quick Links</h4>
             <ul className="space-y-2">
@@ -41,7 +41,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="font-medium mb-4">Products</h4>
             <ul className="space-y-2">
@@ -57,7 +57,7 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="font-medium mb-4">Contact Us</h4>
             <address className="text-sawatsya-cream text-sm not-italic">
@@ -67,7 +67,7 @@ const Footer = () => {
             </address>
           </div>
         </div>
-        
+
         <div className="border-t border-sawatsya-sand/30 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-sawatsya-cream">&copy; {currentYear} SAWATSYA. All rights reserved.</p>
           <div className="mt-4 md:mt-0">

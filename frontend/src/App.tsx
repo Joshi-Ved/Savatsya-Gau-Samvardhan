@@ -11,7 +11,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import "./index.css"
-import "./styles/dark-mode.css"
+
 
 
 import Navbar from "@/components/layout/navbar";
@@ -29,7 +29,14 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import AdminLayout from "./pages/admin/AdminLayout";
+import ProductList from "./pages/admin/ProductList";
+import ProductForm from "./pages/admin/ProductForm";
+import Dashboard from "./pages/admin/Dashboard";
+import OrderList from "./pages/admin/OrderList";
+import UserList from "./pages/admin/UserList";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +53,12 @@ const LoginRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return null;
   return isAuthenticated ? <Navigate to="/" replace /> : <Login />;
+};
+
+const RequireAdmin = ({ children }: { children: JSX.Element }) => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return null;
+  return user?.isAdmin ? children : <Navigate to="/" replace />;
 };
 
 const App = () => (
@@ -82,7 +95,30 @@ const App = () => (
                               </RequireAuth>
                             }
                           />
+                          <Route
+                            path="/checkout"
+                            element={
+                              <RequireAuth>
+                                <Checkout />
+                              </RequireAuth>
+                            }
+                          />
                           <Route path="/checkout-success" element={<CheckoutSuccess />} />
+
+                          {/* Admin Routes */}
+                          <Route path="/admin" element={
+                            <RequireAdmin>
+                              <AdminLayout />
+                            </RequireAdmin>
+                          }>
+                            <Route index element={<Dashboard />} />
+                            <Route path="products" element={<ProductList />} />
+                            <Route path="products/new" element={<ProductForm />} />
+                            <Route path="products/:id/edit" element={<ProductForm />} />
+                            <Route path="orders" element={<OrderList />} />
+                            <Route path="users" element={<UserList />} />
+                          </Route>
+
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>

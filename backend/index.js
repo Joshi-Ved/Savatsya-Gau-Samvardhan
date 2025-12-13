@@ -13,6 +13,8 @@ import newsletterRoutes from './routes/newsletter.js';
 import webhookRoutes from './routes/webhooks.js';
 import emailRoutes from './routes/emails.js';
 import emailTestRoutes from './routes/emailTests.js';
+import productRoutes from './routes/products.js';
+import analyticsRoutes from './routes/analytics.js';
 
 
 
@@ -36,7 +38,7 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin) || allowedOrigins.some(allowed => origin?.includes('vercel.app'))) {
       callback(null, true);
     } else {
@@ -65,7 +67,7 @@ if (!process.env.MONGO_URI) {
   };
 
   console.log('[database] Attempting to connect to MongoDB...');
-  
+
   mongoose.connect(process.env.MONGO_URI, mongooseOptions)
     .then(() => {
       console.log("✅ MongoDB connected successfully");
@@ -78,7 +80,7 @@ if (!process.env.MONGO_URI) {
       console.error("2. Network connectivity to MongoDB Atlas");
       console.error("3. Database credentials are correct");
       console.error("4. IP address is whitelisted in MongoDB Atlas");
-      
+
       // Don't exit the server, continue running without database
       console.warn("⚠️  Server continuing without database connection");
     });
@@ -110,7 +112,8 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/emails', emailRoutes);
 app.use('/api/email-tests', emailTestRoutes);
-app.use('/api/email-tests', emailTestRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Static serving of frontend in production (disabled for development)
 // const __filename = fileURLToPath(import.meta.url);
@@ -130,7 +133,7 @@ const server = http.createServer(app);
 try {
   import('./websocket.js').then(({ attachWebsocket }) => {
     const { broadcast } = attachWebsocket(server, { path: '/ws' });
-   
+
     app.locals.broadcast = broadcast;
     console.log('WebSocket server attached at /ws');
   }).catch((err) => {

@@ -4,17 +4,31 @@ import { authenticateJWT } from '../middleware/auth.js';
 import User from '../models/User.js';
 import multer from 'multer';
 import cloudinary from '../utils/cloudinary.js';
-import { 
-  send2FAEnabledEmail, 
-  send2FADisabledEmail, 
-  sendDataDownloadEmail, 
-  sendAccountDeletionEmail 
+import {
+  send2FAEnabledEmail,
+  send2FADisabledEmail,
+  sendDataDownloadEmail,
+  sendAccountDeletionEmail
 } from '../utils/emailTemplates.js';
 
 const upload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
+
+// GET /api/user/all - List all users (Admin only)
+router.get('/all', authenticateJWT, async (req, res) => {
+  try {
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+    const users = await User.find({}, '-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
 
 router.get('/me', authenticateJWT, async (req, res) => {
   const user = await User.findById(req.user.userId).lean();
@@ -29,6 +43,7 @@ router.get('/me', authenticateJWT, async (req, res) => {
     address: user.address || [],
     preferences: user.preferences || {},
     uiConfig: user.uiConfig || {},
+    isAdmin: user.isAdmin || false,
     twoFactorAuth: {
       enabled: user.twoFactorAuth?.enabled || false,
       method: user.twoFactorAuth?.method || null,
@@ -67,19 +82,19 @@ router.get('/two-factor/status', authenticateJWT, async (req, res) => {
 router.put('/profile', authenticateJWT, async (req, res) => {
   const { name, email, phone, avatar, profilePicture } = req.body;
   console.log(`Profile update request for user ${req.user.userId}:`, { name, email, phone, avatar: avatar ? 'provided' : 'not provided', profilePicture: profilePicture ? 'provided' : 'not provided' });
-  
-  const updates = { };
+
+  const updates = {};
   if (name !== undefined) updates.name = name;
   if (phone !== undefined) updates.phone = phone;
   if (email !== undefined) updates.email = email.toLowerCase();
   if (avatar !== undefined) updates.avatar = avatar;
   if (profilePicture !== undefined) updates.profilePicture = profilePicture;
-  
+
   console.log('Applying updates:', { ...updates, avatar: updates.avatar ? 'provided' : undefined, profilePicture: updates.profilePicture ? 'base64 data' : undefined });
-  
+
   const user = await User.findByIdAndUpdate(req.user.userId, updates, { new: true }).lean();
   console.log('Updated user profile:', { name: user.name, email: user.email, phone: user.phone, avatar: user.avatar ? 'saved' : 'none', profilePicture: user.profilePicture ? 'saved' : 'none' });
-  
+
   return res.json({ ok: true, user });
 });
 
@@ -87,7 +102,7 @@ router.put('/profile', authenticateJWT, async (req, res) => {
 router.post('/avatar', authenticateJWT, upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-   
+
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream({ folder: 'avatars' }, (error, result) => {
         if (error) return reject(error);
@@ -155,13 +170,13 @@ router.put('/change-password', authenticateJWT, async (req, res) => {
   console.log('=== CHANGE PASSWORD REQUEST ===');
   console.log('User ID:', req.user?.userId);
   console.log('Request body keys:', Object.keys(req.body));
-  
+
   try {
     const { currentPassword, newPassword } = req.body;
     console.log('Current password provided:', !!currentPassword);
     console.log('New password provided:', !!newPassword);
     console.log('New password length:', newPassword?.length);
-    
+
     if (!currentPassword || !newPassword) {
       console.log('Missing required fields');
       return res.status(400).json({ error: 'Current password and new password are required' });
@@ -180,30 +195,30 @@ router.put('/change-password', authenticateJWT, async (req, res) => {
 
     console.log('User found:', user.email);
 
-   
+
     const isValidPassword = await bcrypt.compare(currentPassword, user.password);
     console.log('Current password valid:', isValidPassword);
-    
+
     if (!isValidPassword) {
       console.log('Invalid current password');
       return res.status(400).json({ error: 'Current password is incorrect' });
     }
 
-   
+
     const saltRounds = 10;
     const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
     console.log('New password hashed successfully');
-    
-   
+
+
     user.password = hashedNewPassword;
     user.passwordChangedAt = new Date();
     await user.save();
     console.log('Password updated successfully');
 
-    return res.json({ 
-      ok: true, 
+    return res.json({
+      ok: true,
       message: 'Password changed successfully',
-      passwordChangedAt: user.passwordChangedAt 
+      passwordChangedAt: user.passwordChangedAt
     });
   } catch (error) {
     console.error('Change password error:', error);
@@ -216,10 +231,10 @@ router.put('/two-factor', authenticateJWT, async (req, res) => {
   console.log('=== TWO-FACTOR AUTH REQUEST ===');
   console.log('User ID:', req.user?.userId);
   console.log('Request body:', req.body);
-  
+
   try {
     const { enable, method = 'email', password } = req.body;
-    
+
     // Validate input
     if (enable === undefined || enable === null) {
       console.log('Missing enable parameter');
@@ -240,7 +255,7 @@ router.put('/two-factor', authenticateJWT, async (req, res) => {
       console.log('Password required for enabling 2FA');
       return res.status(400).json({ error: 'Password confirmation is required to enable 2FA' });
     }
-    
+
     if (password) {
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
@@ -255,7 +270,7 @@ router.put('/two-factor', authenticateJWT, async (req, res) => {
     if (enable) {
       // Enable 2FA
       console.log('Enabling 2FA with method:', method);
-      
+
       // Validate method
       const validMethods = ['email', 'sms', 'app'];
       if (!validMethods.includes(method)) {
@@ -263,7 +278,7 @@ router.put('/two-factor', authenticateJWT, async (req, res) => {
       }
 
       // Generate backup codes
-      const backupCodes = Array.from({ length: 8 }, () => 
+      const backupCodes = Array.from({ length: 8 }, () =>
         Math.random().toString(36).substring(2, 8).toUpperCase()
       );
 
@@ -276,7 +291,7 @@ router.put('/two-factor', authenticateJWT, async (req, res) => {
       user.twoFactorAuth.method = method;
       user.twoFactorAuth.backupCodes = backupCodes.map(code => ({ code, used: false }));
       user.twoFactorAuth.enabledAt = new Date();
-      
+
       // Clear any previous disabled date
       if (user.twoFactorAuth.disabledAt) {
         user.twoFactorAuth.disabledAt = undefined;
@@ -344,7 +359,7 @@ router.put('/two-factor', authenticateJWT, async (req, res) => {
   } catch (error) {
     console.error('Two-factor auth error:', error);
     console.error('Error stack:', error.stack);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Internal server error',
       details: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
@@ -357,16 +372,16 @@ router.get('/download-data', authenticateJWT, async (req, res) => {
     const user = await User.findById(req.user.userId).lean();
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-   
+
     let orders = [];
     try {
       const Order = (await import('../models/Order.js')).default;
       orders = await Order.find({ userId: req.user.userId }).lean();
     } catch (e) {
-     
+
     }
 
-   
+
     const userData = {
       profile: {
         id: user._id,
@@ -390,10 +405,10 @@ router.get('/download-data', authenticateJWT, async (req, res) => {
       exportVersion: '1.0'
     };
 
-   
+
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="my-data-${user.email}-${new Date().toISOString().split('T')[0]}.json"`);
-    
+
     // Send data download notification email
     try {
       console.log('[data-download] Sending notification email to:', user.email);
@@ -403,7 +418,7 @@ router.get('/download-data', authenticateJWT, async (req, res) => {
       console.error('[data-download] Email notification error:', emailError.message);
       // Don't fail the download if email fails
     }
-    
+
     return res.json(userData);
   } catch (error) {
     console.error('Download data error:', error);
@@ -415,7 +430,7 @@ router.get('/download-data', authenticateJWT, async (req, res) => {
 router.delete('/account', authenticateJWT, async (req, res) => {
   try {
     const { password, confirmation } = req.body;
-    
+
     if (!password) {
       return res.status(400).json({ error: 'Password confirmation is required' });
     }
@@ -427,13 +442,13 @@ router.delete('/account', authenticateJWT, async (req, res) => {
     const user = await User.findById(req.user.userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-   
+
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       return res.status(400).json({ error: 'Password is incorrect' });
     }
 
-   
+
     const deletionDate = new Date();
     deletionDate.setDate(deletionDate.getDate() + 30);
 
@@ -478,7 +493,7 @@ router.post('/cancel-deletion', authenticateJWT, async (req, res) => {
       return res.status(400).json({ error: 'No account deletion scheduled' });
     }
 
-   
+
     user.deletionScheduled = undefined;
     user.isActive = true;
     await user.save();
@@ -497,7 +512,7 @@ router.post('/cancel-deletion', authenticateJWT, async (req, res) => {
 router.post('/two-factor/regenerate-codes', authenticateJWT, async (req, res) => {
   try {
     const { password } = req.body;
-    
+
     if (!password) {
       return res.status(400).json({ error: 'Password confirmation is required' });
     }
@@ -517,7 +532,7 @@ router.post('/two-factor/regenerate-codes', authenticateJWT, async (req, res) =>
     }
 
     // Generate new backup codes
-    const newBackupCodes = Array.from({ length: 8 }, () => 
+    const newBackupCodes = Array.from({ length: 8 }, () =>
       Math.random().toString(36).substring(2, 8).toUpperCase()
     );
 

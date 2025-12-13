@@ -32,9 +32,9 @@ const uiConfigSchema = new mongoose.Schema({
 
 const twoFactorAuthSchema = new mongoose.Schema({
   enabled: { type: Boolean, default: false },
-  method: { 
-    type: String, 
-    enum: ['email', 'sms', 'app', null], 
+  method: {
+    type: String,
+    enum: ['email', 'sms', 'app', null],
     default: null,
     required: false
   },
@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema({
   preferences: { type: preferencesSchema, default: () => ({}) },
   uiConfig: { type: uiConfigSchema, default: () => ({}) },
   cart: [{ type: Object }],
-  
+
   // Password reset functionality
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },
@@ -71,8 +71,9 @@ const userSchema = new mongoose.Schema({
   twoFactorAuth: { type: twoFactorAuthSchema, default: () => ({}) },
   isActive: { type: Boolean, default: true },
   deletionScheduled: deletionScheduleSchema,
-  
- 
+  isAdmin: { type: Boolean, default: false },
+
+
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

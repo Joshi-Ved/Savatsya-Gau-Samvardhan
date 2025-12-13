@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
   },
   ORDERS: `${API_BASE_URL}/api/orders`,
   PRODUCTS: `${API_BASE_URL}/api/products`,
+  ANALYTICS: `${API_BASE_URL}/api/analytics`,
   NEWSLETTER: {
     SUBSCRIBE: `${API_BASE_URL}/api/newsletter/subscribe`,
     UNSUBSCRIBE: `${API_BASE_URL}/api/newsletter/unsubscribe`,

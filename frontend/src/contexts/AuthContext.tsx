@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { API_ENDPOINTS } from '@/config/api';
 
-
 export interface TwoFactorAuth {
   enabled: boolean;
   method?: 'email' | 'sms' | 'app';
@@ -20,6 +19,7 @@ export interface User {
   twoFactorAuth?: TwoFactorAuth;
   passwordChangedAt?: Date;
   isActive?: boolean;
+  isAdmin?: boolean;
 }
 
 export interface Address {
@@ -61,10 +61,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  // Initialize loading state based on token presence to prevent race conditions
+  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('token'));
 
   useEffect(() => {
-   
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoading(true);
@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 notifications: { email: true, sms: true, push: true }
               },
               address: data.address || [],
+              isAdmin: data.isAdmin || false,
             });
           } else {
             setUser(null);
@@ -112,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
     localStorage.setItem('token', data.token);
-   
+
     try {
       const meRes = await fetch(API_ENDPOINTS.USER.ME, {
         headers: { Authorization: `Bearer ${data.token}` }
@@ -132,6 +133,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             notifications: { email: true, sms: true, push: true }
           },
           address: me.address || [],
+          isAdmin: me.isAdmin || false,
         });
       } else {
         setUser({
@@ -147,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             notifications: { email: true, sms: true, push: true }
           },
           address: data.address || [],
+          isAdmin: data.isAdmin || false,
         });
       }
     } finally {
@@ -168,13 +171,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     const token = localStorage.getItem('token');
-    
+
     // Call backend logout endpoint if token exists
     if (token) {
       try {
         await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
           method: 'POST',
-          headers: { 
+          headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
@@ -184,13 +187,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Continue with local logout even if API fails
       }
     }
-    
+
     // Always clear local state and token
     setUser(null);
     localStorage.removeItem('token');
   };
 
- 
   const updatePreferences = (prefs: UserPreferences) => {
     setUser(prev => prev ? { ...prev, preferences: prefs } : prev);
     const token = localStorage.getItem('token');
@@ -199,7 +201,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ preferences: prefs })
-      }).catch(() => {});
+      }).catch(() => { });
     }
   };
 
@@ -216,9 +218,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await fetch(API_ENDPOINTS.USER.PROFILE, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json', 
-          Authorization: `Bearer ${token}` 
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(updates)
       });
@@ -233,18 +235,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const result = await response.json();
       console.log('Profile updated successfully:', result);
-      
-     
+
       console.log('Updating local user state with:', updates);
       setUser(prev => {
         const newUser = prev ? { ...prev, ...updates } : prev;
         console.log('New user state:', newUser);
         return newUser;
       });
-      
+
     } catch (error) {
       console.error('Error updating user profile:', error);
-     
       throw error;
     }
   };
@@ -266,7 +266,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ id: `addr_${Date.now()}`, ...address })
-      }).catch(() => {});
+      }).catch(() => { });
     }
   };
 
@@ -288,7 +288,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(updates)
-      }).catch(() => {});
+      }).catch(() => { });
     }
   };
 
@@ -299,7 +299,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       fetch(API_ENDPOINTS.USER.ADDRESS(id), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
-      }).catch(() => {});
+      }).catch(() => { });
     }
   };
 

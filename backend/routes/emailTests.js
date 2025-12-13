@@ -1,11 +1,11 @@
 import express from 'express';
-import { 
-  sendWelcomeEmail, 
-  sendNewsletterSubscriptionEmail, 
-  send2FAEnabledEmail, 
-  send2FADisabledEmail, 
-  sendDataDownloadEmail, 
-  sendAccountDeletionEmail 
+import {
+  sendWelcomeEmail,
+  sendNewsletterSubscriptionEmail,
+  send2FAEnabledEmail,
+  send2FADisabledEmail,
+  sendDataDownloadEmail,
+  sendAccountDeletionEmail
 } from '../utils/emailTemplates.js';
 import { diagnoseSendGridIssues, quickSendGridCheck } from '../utils/sendgridDiagnostics.js';
 
@@ -16,9 +16,9 @@ router.get('/diagnose-sendgrid', async (req, res) => {
   try {
     console.log('\n🔍 Starting SendGrid Diagnosis...\n');
     const diagnosis = await diagnoseSendGridIssues();
-    
+
     const quickCheck = await quickSendGridCheck();
-    
+
     return res.json({
       success: true,
       diagnosis: {
@@ -29,7 +29,7 @@ router.get('/diagnose-sendgrid', async (req, res) => {
       },
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     console.error('[sendgrid-diagnosis] Error:', error);
     return res.status(500).json({
@@ -43,7 +43,7 @@ router.get('/diagnose-sendgrid', async (req, res) => {
 router.get('/sendgrid-status', async (req, res) => {
   try {
     const status = await quickSendGridCheck();
-    
+
     return res.json({
       success: true,
       status,
@@ -55,7 +55,7 @@ router.get('/sendgrid-status', async (req, res) => {
       },
       timestamp: new Date().toISOString()
     });
-    
+
   } catch (error) {
     return res.status(500).json({
       error: 'Status check failed',
@@ -68,7 +68,7 @@ router.get('/sendgrid-status', async (req, res) => {
 router.post('/test-all-emails', async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       return res.status(400).json({ error: 'Test email address is required' });
     }
@@ -135,9 +135,9 @@ router.post('/test-all-emails', async (req, res) => {
 
   } catch (error) {
     console.error('[email-test] Test failed:', error);
-    return res.status(500).json({ 
-      error: 'Email test failed', 
-      details: error.message 
+    return res.status(500).json({
+      error: 'Email test failed',
+      details: error.message
     });
   }
 });
@@ -146,7 +146,7 @@ router.post('/test-all-emails', async (req, res) => {
 router.post('/test-welcome', async (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  
+
   try {
     const result = await sendWelcomeEmail(email, name || 'Test User');
     res.json({ success: true, result });
@@ -158,7 +158,7 @@ router.post('/test-welcome', async (req, res) => {
 router.post('/test-newsletter', async (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  
+
   try {
     const result = await sendNewsletterSubscriptionEmail(email, name || 'Test User');
     res.json({ success: true, result });
@@ -170,7 +170,7 @@ router.post('/test-newsletter', async (req, res) => {
 router.post('/test-2fa-enabled', async (req, res) => {
   const { email, name, method } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  
+
   try {
     const result = await send2FAEnabledEmail(email, name || 'Test User', method || 'email');
     res.json({ success: true, result });
@@ -182,7 +182,7 @@ router.post('/test-2fa-enabled', async (req, res) => {
 router.post('/test-2fa-disabled', async (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  
+
   try {
     const result = await send2FADisabledEmail(email, name || 'Test User');
     res.json({ success: true, result });
@@ -194,7 +194,7 @@ router.post('/test-2fa-disabled', async (req, res) => {
 router.post('/test-data-download', async (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  
+
   try {
     const result = await sendDataDownloadEmail(email, name || 'Test User', new Date().toLocaleString());
     res.json({ success: true, result });
@@ -206,7 +206,7 @@ router.post('/test-data-download', async (req, res) => {
 router.post('/test-account-deletion', async (req, res) => {
   const { email, name } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
-  
+
   try {
     const result = await sendAccountDeletionEmail(email, name || 'Test User', new Date().toLocaleString());
     res.json({ success: true, result });

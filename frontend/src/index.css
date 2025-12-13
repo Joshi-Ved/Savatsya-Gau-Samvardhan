@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
@@ -11,39 +10,66 @@
     background-size: 400% 400%;
     animation: gradientShift 8s ease infinite;
   }
-  
+
   .animate-pulse-soft {
     animation: pulseSoft 3s ease-in-out infinite;
   }
-  
+
   .animate-bounce-slow {
     animation: bounceSlow 3s ease-in-out infinite;
   }
-  
+
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
   }
 }
 
 @keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes pulseSoft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
 }
 
 @keyframes bounceSlow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 @keyframes glow {
-  from { box-shadow: 0 0 20px rgba(139, 110, 79, 0.3); }
-  to { box-shadow: 0 0 30px rgba(139, 110, 79, 0.6), 0 0 40px rgba(139, 110, 79, 0.3); }
+  from {
+    box-shadow: 0 0 20px rgba(139, 110, 79, 0.3);
+  }
+
+  to {
+    box-shadow: 0 0 30px rgba(139, 110, 79, 0.6), 0 0 40px rgba(139, 110, 79, 0.3);
+  }
 }
 
 @layer base {
@@ -117,7 +143,7 @@
     --input: 220 13% 15%;
     --ring: 32 45% 58%;
 
-    
+
     .product-card {
       @apply bg-card border-border;
     }
@@ -134,12 +160,13 @@
       @apply bg-accent text-accent-foreground hover:bg-accent/90;
     }
 
-    .section-title, .page-title {
+    .section-title,
+    .page-title {
       @apply text-foreground;
     }
   }
 
-  
+
   [data-color-scheme="warm"] {
     --primary: 25 75% 45%;
     --accent: 15 85% 55%;
@@ -160,7 +187,7 @@
     --muted: 40 10% 85%;
   }
 
-  
+
   [data-font-size="small"] {
     font-size: 14px;
   }
@@ -173,7 +200,7 @@
     font-size: 18px;
   }
 
-  
+
   .high-contrast {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
@@ -194,7 +221,7 @@
     --primary-foreground: 0 0% 0%;
   }
 
-  
+
   .no-animations *,
   .no-animations *::before,
   .no-animations *::after {
@@ -216,8 +243,9 @@
     transition-duration: 0.01ms !important;
   }
 
-  
+
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -241,18 +269,26 @@
     background-size: cover;
     background-position: center;
   }
-  
+
   @media (max-width: 768px) {
     body {
       background-attachment: scroll;
     }
   }
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     @apply font-serif;
   }
 
-  p, a, button, input, textarea {
+  p,
+  a,
+  button,
+  input,
+  textarea {
     @apply font-sans;
   }
 }
@@ -264,45 +300,45 @@
     background-size: cover;
     background-position: center;
   }
-  
+
   @media (max-width: 768px) {
     .hero-section {
       background-attachment: scroll;
       min-height: 70vh;
     }
   }
-  
+
   .product-card {
     @apply bg-white rounded-lg border border-sawatsya-sand p-4 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden;
   }
-  
+
   .btn-primary {
     @apply bg-sawatsya-earth text-white hover:bg-sawatsya-wood px-4 py-2 rounded-md transition-colors duration-200 flex items-center justify-center;
   }
-  
+
   .btn-secondary {
     @apply bg-sawatsya-leaf text-white hover:bg-green-600 px-4 py-2 rounded-md transition-colors duration-200;
   }
-  
+
   .btn-accent {
     @apply bg-sawatsya-terracotta text-white hover:bg-sawatsya-amber px-4 py-2 rounded-md transition-colors duration-200;
   }
-  
+
   .section-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16;
     background-color: transparent;
   }
-  
+
   @media (max-width: 640px) {
     .section-container {
       @apply px-2 py-8;
     }
   }
-  
+
   .section-title {
     @apply text-3xl md:text-4xl font-serif font-medium text-sawatsya-wood mb-6 md:mb-8;
   }
-  
+
   .page-title {
     @apply text-4xl md:text-5xl font-serif font-medium text-sawatsya-wood mb-6 md:mb-8 text-center;
   }
