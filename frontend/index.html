@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>SAVATSYA - Natural Incense Sticks & A2 Cow Ghee</title>
   <meta name="description" content="SAVATSYA - Authentic, handcrafted incense sticks and pure A2 cow ghee made with traditional methods." />
   <meta name="author" content="SAVATSYA" />
@@ -13,6 +13,16 @@
   
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@sawatsya" />
+
+  <!-- PWA Support -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#8b6e4f" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Sawatsya" />
+  
+  <!-- iOS Splash Screens -->
+  <link rel="apple-touch-icon" href="/images/icon-192.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,6 +37,17 @@
 
   <body>
     <div id="root"></div>
+    
+    <script>
+      // Register service worker for PWA support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => console.log('SW registered:', registration))
+            .catch(err => console.log('SW registration failed:', err));
+        });
+      }
+    </script>
     
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>

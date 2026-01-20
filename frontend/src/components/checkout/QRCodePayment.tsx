@@ -1,5 +1,4 @@
 
-import React from 'react';
 import QRCode from 'react-qr-code';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';

@@ -257,8 +257,7 @@ SAVATSYA-GAU-SAMVARDHAN/
 │   ├── 📄 index.html       # HTML entry point
 │   ├── 📄 package.json     # Frontend dependencies
 │   └── 📄 tailwind.config.ts # Tailwind CSS configuration
-├── 📁 devops/
-│   └── 📁 docker/         # Docker configuration files
+	# Removed devops/docker directory as per user request
 ├── 📄 vercel.json         # Vercel deployment configuration
 ├── 📄 render.yaml         # Render deployment configuration
 └── 📄 README.md           # Project documentation

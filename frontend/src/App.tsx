@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
+import InstallPrompt from "@/components/InstallPrompt";
 import "./index.css"
 
 
@@ -37,6 +38,7 @@ import ProductForm from "./pages/admin/ProductForm";
 import Dashboard from "./pages/admin/Dashboard";
 import OrderList from "./pages/admin/OrderList";
 import UserList from "./pages/admin/UserList";
+import LiveActivity from "./pages/admin/LiveActivity";
 
 const queryClient = new QueryClient();
 
@@ -72,6 +74,7 @@ const App = () => (
                 <TooltipProvider>
                   <Toaster />
                   <Sonner />
+                  <InstallPrompt />
                   <BrowserRouter>
                     <div className="flex flex-col min-h-screen">
                       <Navbar />
@@ -112,6 +115,7 @@ const App = () => (
                             </RequireAdmin>
                           }>
                             <Route index element={<Dashboard />} />
+                            <Route path="live-activity" element={<LiveActivity />} />
                             <Route path="products" element={<ProductList />} />
                             <Route path="products/new" element={<ProductForm />} />
                             <Route path="products/:id/edit" element={<ProductForm />} />

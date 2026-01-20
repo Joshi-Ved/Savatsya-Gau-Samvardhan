@@ -56,19 +56,19 @@ const UserList = () => {
 
     return (
         <div className="space-y-6">
-            <h1 className="text-3xl font-serif font-bold text-gray-900">Users</h1>
+            <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-gray-100">Users</h1>
 
-            <div className="flex items-center space-x-4 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                <Search className="h-5 w-5 text-gray-400" />
+            <div className="flex items-center space-x-4 bg-white dark:bg-[#252526] p-4 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                 <Input
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="border-none shadow-none focus-visible:ring-0"
+                    className="border-none shadow-none focus-visible:ring-0 dark:bg-transparent dark:text-gray-200"
                 />
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-[#252526] rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
                 <Table>
                     <TableHeader>
                         <TableRow>

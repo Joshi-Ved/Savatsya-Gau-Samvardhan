@@ -145,6 +145,20 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
       actions: [...prev.actions, action]
     } : null);
    
+    // Send to backend for real-time admin tracking
+    try {
+      fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actionType: type,
+          payload: data,
+          userId: user?._id || null
+        })
+      }).catch(() => {}); // Silently fail if backend is unavailable
+    } catch (error) {
+      // Ignore tracking errors
+    }
   };
 
   const trackPageView = (page: string, title?: string) => {

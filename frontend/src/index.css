@@ -106,42 +106,50 @@
   }
 
   .dark {
-    /* Rich, deep backgrounds with subtle warmth */
-    --background: 220 15% 9%;
-    --foreground: 45 20% 92%;
+    /* VS Code Night Theme colors */
+    --background: 220 13% 18%;        /* #1e1e1e - Main background */
+    --foreground: 0 0% 90%;           /* #e4e4e4 - Main text */
 
-    /* Elevated cards with depth */
-    --card: 220 14% 13%;
-    --card-foreground: 45 15% 90%;
+    /* Cards and elevated surfaces */
+    --card: 220 13% 15%;              /* #252526 - Card background */
+    --card-foreground: 0 0% 88%;      /* #d4d4d4 - Card text */
 
-    /* Popovers slightly lighter than cards */
-    --popover: 220 14% 15%;
-    --popover-foreground: 45 15% 92%;
+    /* Popovers and dropdowns */
+    --popover: 220 13% 15%;           /* #252526 */
+    --popover-foreground: 0 0% 90%;   /* #e4e4e4 */
 
-    /* Warm, earthy primary accent */
-    --primary: 32 45% 58%;
-    --primary-foreground: 220 15% 10%;
+    /* Primary accent - warm blue */
+    --primary: 210 100% 60%;          /* #3794ff - VS Code blue */
+    --primary-foreground: 0 0% 100%;  /* White text on primary */
 
-    /* Subtle secondary tones */
-    --secondary: 220 12% 18%;
-    --secondary-foreground: 45 15% 88%;
+    /* Secondary elements */
+    --secondary: 220 13% 20%;         /* #2d2d30 - Slightly lighter */
+    --secondary-foreground: 0 0% 85%; /* #d9d9d9 */
 
-    /* Muted elements with better contrast */
-    --muted: 220 12% 16%;
-    --muted-foreground: 220 10% 65%;
+    /* Muted elements */
+    --muted: 220 13% 20%;             /* #2d2d30 */
+    --muted-foreground: 0 0% 60%;     /* #999999 - Muted text */
 
-    /* Warm terracotta accent */
-    --accent: 18 60% 55%;
-    --accent-foreground: 45 15% 95%;
+    /* Accent color - orange/amber */
+    --accent: 30 100% 50%;            /* #ff9900 - VS Code orange */
+    --accent-foreground: 0 0% 100%;
 
-    /* Softer destructive */
-    --destructive: 0 65% 58%;
-    --destructive-foreground: 45 15% 95%;
+    /* Destructive/error states */
+    --destructive: 0 75% 60%;         /* #f14c4c - VS Code error red */
+    --destructive-foreground: 0 0% 100%;
 
-    /* Subtle borders and inputs */
-    --border: 220 12% 22%;
-    --input: 220 13% 15%;
-    --ring: 32 45% 58%;
+    /* Borders and inputs */
+    --border: 0 0% 25%;               /* #3e3e42 - Borders */
+    --input: 0 0% 20%;                /* #333333 - Input background */
+    --ring: 210 100% 60%;             /* #3794ff - Focus ring */
+
+    /* Chart colors (VS Code theme inspired) */
+    --chart-1: 210 100% 60%;          /* Blue */
+    --chart-2: 280 65% 60%;           /* Purple */
+    --chart-3: 160 60% 50%;           /* Green */
+    --chart-4: 30 100% 50%;           /* Orange */
+    --chart-5: 350 80% 60%;           /* Red */
+  }
 
 
     .product-card {
@@ -255,7 +263,7 @@
       scroll-behavior: auto !important;
     }
   }
-}
+
 
 @layer base {
   * {
@@ -341,5 +349,44 @@
 
   .page-title {
     @apply text-4xl md:text-5xl font-serif font-medium text-sawatsya-wood mb-6 md:mb-8 text-center;
+  }
+
+  /* Mobile-specific utilities */
+  .mobile-menu {
+    @apply fixed inset-0 bg-black/50 z-40 md:hidden;
+  }
+
+  .mobile-nav {
+    @apply fixed top-16 left-0 right-0 bg-white dark:bg-[#252526] shadow-lg z-50 md:hidden;
+  }
+
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  /* Improved scroll behavior on mobile */
+  @media (max-width: 768px) {
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Better tap highlighting */
+    * {
+      -webkit-tap-highlight-color: rgba(139, 110, 79, 0.1);
+    }
+
+    /* Prevent text selection on buttons */
+    button, a {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+  }
+
+  /* PWA safe area support */
+  @supports (padding: env(safe-area-inset-top)) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }

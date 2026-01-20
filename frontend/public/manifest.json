@@ -1,0 +1,19 @@
+{
+  "name": "Savatsa Gau Savardhan",
+  "short_name": "Sawatsya",
+  "description": "Authentic Indian cow-based products and traditional items",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#8b6e4f",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"]
+}
