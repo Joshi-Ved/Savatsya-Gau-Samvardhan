@@ -1,24 +1,153 @@
+# ============================================
+# Environment Variables & Sensitive Files
+# ============================================
+.env
+.env.*
+!.env.example
+*.env
 backend/.env
 frontend/.env
-frontend/.env.local
+*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# API Keys & Secrets
+secrets.json
+credentials.json
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+serviceAccountKey.json
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
 backend/node_modules/
 frontend/node_modules/
+jspm_packages/
+bower_components/
+vendor/
+
+# ============================================
+# Build Outputs
+# ============================================
+dist/
+build/
+out/
 frontend/dist/
 frontend/build/
 backend/dist/
-.vscode/
-.DS_Store
+.next/
+.turbo/
+.parcel-cache/
+.output/
+.nuxt/
+.cache/
+
+# ============================================
+# Logs
+# ============================================
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-.env.local
-*.log
+lerna-debug.log*
+logs/
+*.log.*
+
+# ============================================
+# OS & Editor Files
+# ============================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE & Editor
+.vscode/
 .idea/
 *.iml
-node_modules/
-.turbo/
-.next/
-.vercel/
-.cache/
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.code-workspace
+
+# ============================================
+# Testing & Coverage
+# ============================================
 coverage/
+.nyc_output/
+*.lcov
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.hypothesis/
+
+# ============================================
+# Package Managers
+# ============================================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# ============================================
+# Deployment & Cloud
+# ============================================
+.vercel/
+.netlify/
+.firebase/
+.serverless/
+.fusebox/
+
+# ============================================
+# Misc
+# ============================================
+*.seed
+*.pid
+*.pid.lock
+.npm
+.eslintcache
+.stylelintcache
+.node_repl_history
+.cache
+.temp
+temp/
+tmp/
+*.tgz
+.grunt
+.lock-wscript
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Backup files
+*.backup
+*.bak
+*~
