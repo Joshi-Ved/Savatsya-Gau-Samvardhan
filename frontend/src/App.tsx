@@ -63,6 +63,24 @@ const RequireAdmin = ({ children }: { children: JSX.Element }) => {
   return user?.isAdmin ? children : <Navigate to="/" replace />;
 };
 
+const ServerStatus = () => {
+  const { serverError, checkAuth } = useAuth();
+
+  if (!serverError) return null;
+
+  return (
+    <div className="bg-red-500 text-white text-center py-2 px-4 fixed top-0 left-0 right-0 z-[100] flex items-center justify-center gap-2">
+      <span className="text-sm font-medium">Cannot connect to server. Some features may be unavailable.</span>
+      <button
+        onClick={() => checkAuth()}
+        className="bg-white text-red-500 px-3 py-1 rounded text-xs font-bold hover:bg-gray-100 transition-colors"
+      >
+        Retry
+      </button>
+    </div>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -75,7 +93,8 @@ const App = () => (
                   <Toaster />
                   <Sonner />
                   <InstallPrompt />
-                  <BrowserRouter>
+                  <ServerStatus />
+                  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <div className="flex flex-col min-h-screen">
                       <Navbar />
                       <main className="flex-grow">

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sawatsya-v1';
+const CACHE_NAME = 'sawatsya-v2';
 const urlsToCache = [
   '/',
   '/index.html',

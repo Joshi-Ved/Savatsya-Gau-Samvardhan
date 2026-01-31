@@ -47,6 +47,7 @@ type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  serverError?: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: Partial<User>, password: string) => Promise<void>;
   logout: () => void;
@@ -55,6 +56,7 @@ type AuthContextType = {
   addAddress: (address: Omit<Address, 'id'>) => void;
   updateAddress: (id: string, updates: Omit<Address, 'id'>) => void;
   deleteAddress: (id: string) => void;
+  checkAuth: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,79 +65,117 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   // Initialize loading state based on token presence to prevent race conditions
   const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('token'));
+  const [serverError, setServerError] = useState<boolean>(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoading(true);
-      fetch(API_ENDPOINTS.USER.ME, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.email) {
-            setUser({
-              id: data.userId || '',
-              name: data.name || data.email.split('@')[0] || 'User',
-              email: data.email,
-              phone: data.phone || '',
-              profilePicture: data.profilePicture || '',
-              preferences: data.preferences || {
-                theme: 'light',
-                language: 'en',
-                currency: 'INR',
-                notifications: { email: true, sms: true, push: true }
-              },
-              address: data.address || [],
-              isAdmin: data.isAdmin || false,
-            });
-          } else {
-            setUser(null);
-            localStorage.removeItem('token');
-          }
-          setIsLoading(false);
-        })
-        .catch(() => {
-          setUser(null);
-          localStorage.removeItem('token');
-          setIsLoading(false);
-        });
-    }
+    checkAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
-    const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Login failed');
-    localStorage.setItem('token', data.token);
+  const checkAuth = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const meRes = await fetch(API_ENDPOINTS.USER.ME, {
-        headers: { Authorization: `Bearer ${data.token}` }
+      const res = await fetch(API_ENDPOINTS.USER.ME, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const me = await meRes.json();
-      if (meRes.ok && me && me.email) {
+
+      if (res.status === 401) {
+        // Invalid token - actually logout
+        console.warn('Token expired or invalid, logging out');
+        setUser(null);
+        localStorage.removeItem('token');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        // Server error but not auth error - keep token but show error
+        console.error('Server error during auth check:', res.status);
+        setServerError(true);
+        // Don't remove token for 500s or network errors
+        setIsLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+      setServerError(false);
+
+      if (data && data.email) {
         setUser({
-          id: me.userId || data.userId || '',
-          name: me.name || me.email?.split('@')[0] || 'User',
-          email: me.email || email,
-          phone: me.phone || '',
-          profilePicture: me.profilePicture || '',
-          preferences: me.preferences || {
+          id: data.userId || '',
+          name: data.name || data.email.split('@')[0] || 'User',
+          email: data.email,
+          phone: data.phone || '',
+          profilePicture: data.profilePicture || '',
+          preferences: data.preferences || {
             theme: 'light',
             language: 'en',
             currency: 'INR',
             notifications: { email: true, sms: true, push: true }
           },
-          address: me.address || [],
-          isAdmin: me.isAdmin || false,
+          address: data.address || [],
+          isAdmin: data.isAdmin || false,
         });
       } else {
+        setUser(null);
+        localStorage.removeItem('token');
+      }
+    } catch (error) {
+      console.error('Network error during auth check:', error);
+      // Network error - assume server is down but don't logout user yet
+      setServerError(true);
+      // e.g. toast.error("Cannot connect to server");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    setServerError(false);
+    try {
+      const res = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Login failed');
+
+      localStorage.setItem('token', data.token);
+
+      // Fetch user profile immediately
+      try {
+        const meRes = await fetch(API_ENDPOINTS.USER.ME, {
+          headers: { Authorization: `Bearer ${data.token}` }
+        });
+
+        if (meRes.ok) {
+          const me = await meRes.json();
+          setUser({
+            id: me.userId || data.userId || '',
+            name: me.name || me.email?.split('@')[0] || 'User',
+            email: me.email || email,
+            phone: me.phone || '',
+            profilePicture: me.profilePicture || '',
+            preferences: me.preferences || {
+              theme: 'light',
+              language: 'en',
+              currency: 'INR',
+              notifications: { email: true, sms: true, push: true }
+            },
+            address: me.address || [],
+            isAdmin: me.isAdmin || false,
+          });
+        }
+      } catch (err) {
+        console.warn('Failed to fetch full profile after login:', err);
+        // Fallback to basic data
         setUser({
           id: data.userId || '',
           name: data.name || email.split('@')[0] || 'User',
@@ -152,6 +192,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           isAdmin: data.isAdmin || false,
         });
       }
+    } catch (err) {
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -308,6 +350,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       user,
       isAuthenticated: !!user,
       isLoading,
+      serverError,
       login,
       register,
       logout,
@@ -315,7 +358,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       updateUser,
       addAddress,
       updateAddress,
-      deleteAddress
+      deleteAddress,
+      checkAuth
     }}>
       {children}
     </AuthContext.Provider>
