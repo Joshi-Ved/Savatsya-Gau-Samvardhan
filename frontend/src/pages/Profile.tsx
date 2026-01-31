@@ -67,10 +67,10 @@ const Profile = () => {
       <div className="section-container py-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <AnimatedText variant="h1" className="text-3xl font-serif text-sawatsya-wood mb-2">
+            <AnimatedText variant="h1" className="text-3xl font-serif text-sawatsya-wood dark:text-dark-foreground mb-2">
               My Profile
             </AnimatedText>
-            <AnimatedText delay={0.1} className="text-gray-600">
+            <AnimatedText delay={0.1} className="text-gray-600 dark:text-dark-muted-foreground">
               Manage your account, preferences, and personal information
             </AnimatedText>
           </div>
@@ -78,7 +78,7 @@ const Profile = () => {
           { }
           <AnimatedCard delay={0.2} className="mb-8">
             <CardHeader>
-              <CardTitle className="text-center text-2xl font-serif text-sawatsya-wood dark:text-gray-100">
+              <CardTitle className="text-center text-2xl font-serif text-sawatsya-wood dark:text-dark-foreground">
                 Welcome Back, {user.name}!
               </CardTitle>
             </CardHeader>
@@ -91,7 +91,7 @@ const Profile = () => {
                     <span className="text-white text-4xl font-bold">{user.name?.charAt(0).toUpperCase()}</span>
                   )}
                 </div>
-                <p className="text-lg text-gray-600 dark:text-gray-400">{user.email}</p>
+                <p className="text-lg text-gray-600 dark:text-dark-muted-foreground">{user.email}</p>
               </div>
             </CardContent>
           </AnimatedCard>

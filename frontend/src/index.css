@@ -106,163 +106,247 @@
   }
 
   .dark {
-    /* VS Code Night Theme colors */
-    --background: 220 13% 18%;        /* #1e1e1e - Main background */
-    --foreground: 0 0% 90%;           /* #e4e4e4 - Main text */
+    /* Refined warm, earthy dark theme - sawatsya brand */
+    --background: 28 18% 10%;
+    /* #1f1915 - Warmer, richer dark base */
+    --foreground: 42 28% 88%;
+    /* #ebe4d6 - Warmer cream with better contrast */
 
     /* Cards and elevated surfaces */
-    --card: 220 13% 15%;              /* #252526 - Card background */
-    --card-foreground: 0 0% 88%;      /* #d4d4d4 - Card text */
+    --card: 28 15% 18%;
+    /* #342e28 - More defined elevation, warmer tone */
+    --card-foreground: 42 28% 88%;
+    /* #ebe4d6 - Match foreground */
 
     /* Popovers and dropdowns */
-    --popover: 220 13% 15%;           /* #252526 */
-    --popover-foreground: 0 0% 90%;   /* #e4e4e4 */
+    --popover: 28 15% 18%;
+    /* Same as card */
+    --popover-foreground: 42 28% 88%;
 
-    /* Primary accent - warm blue */
-    --primary: 210 100% 60%;          /* #3794ff - VS Code blue */
-    --primary-foreground: 0 0% 100%;  /* White text on primary */
+    /* Primary - lighter earth brown for visibility */
+    --primary: 30 38% 48%;
+    /* #a07f5d - Slightly lighter for better visibility */
+    --primary-foreground: 28 18% 8%;
+    /* #181410 - Darker for better contrast */
 
     /* Secondary elements */
-    --secondary: 220 13% 20%;         /* #2d2d30 - Slightly lighter */
-    --secondary-foreground: 0 0% 85%; /* #d9d9d9 */
+    --secondary: 90 25% 42%;
+    /* #627c4e - More vibrant olive, better visibility */
+    --secondary-foreground: 42 28% 88%;
 
     /* Muted elements */
-    --muted: 220 13% 20%;             /* #2d2d30 */
-    --muted-foreground: 0 0% 60%;     /* #999999 - Muted text */
+    --muted: 28 12% 22%;
+    /* #3d3730 - Warmer muted sections */
+    --muted-foreground: 35 15% 65%;
+    /* #b5a697 - Warmer, more readable */
 
-    /* Accent color - orange/amber */
-    --accent: 30 100% 50%;            /* #ff9900 - VS Code orange */
-    --accent-foreground: 0 0% 100%;
+    /* Accent color - brighter terracotta */
+    --accent: 25 60% 62%;
+    /* #e19862 - Brighter for dark backgrounds */
+    --accent-foreground: 28 18% 8%;
+
+    /* Optional accent states */
+    --accent-hover: 25 65% 56%;
+    /* #d98953 - Hover state for accent elements */
+    --card-hover: 28 15% 20%;
+    /* #3a332c - Subtle card hover effect */
+    --success: 130 35% 48%;
+    /* #52a367 - Success states */
 
     /* Destructive/error states */
-    --destructive: 0 75% 60%;         /* #f14c4c - VS Code error red */
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 65% 58%;
+    /* #e35555 - Softer red, less jarring */
+    --destructive-foreground: 42 28% 88%;
 
     /* Borders and inputs */
-    --border: 0 0% 25%;               /* #3e3e42 - Borders */
-    --input: 0 0% 20%;                /* #333333 - Input background */
-    --ring: 210 100% 60%;             /* #3794ff - Focus ring */
+    --border: 28 10% 26%;
+    /* #453f38 - Subtly lighter for better definition */
+    --input: 28 10% 28%;
+    /* #4a433b - Slightly lighter for input visibility */
+    --ring: 30 38% 48%;
+    /* Same as primary */
 
-    /* Chart colors (VS Code theme inspired) */
-    --chart-1: 210 100% 60%;          /* Blue */
-    --chart-2: 280 65% 60%;           /* Purple */
-    --chart-3: 160 60% 50%;           /* Green */
-    --chart-4: 30 100% 50%;           /* Orange */
-    --chart-5: 350 80% 60%;           /* Red */
+    /* Chart colors (warm palette) */
+    --chart-1: 30 38% 48%;
+    /* Earth brown */
+    --chart-2: 90 25% 42%;
+    /* Olive green */
+    --chart-3: 25 60% 62%;
+    /* Terracotta */
+    --chart-4: 40 50% 50%;
+    /* Amber */
+    --chart-5: 0 65% 58%;
+    /* Red */
+
+    /* ===== Navbar Colors ===== */
+    --navbar-bg: 220 25% 12%;
+    /* #1a1f28 - Deep blue-tinted charcoal */
+    --navbar-border: 220 15% 20%;
+    /* #2d3139 - Subtle separator */
+    --navbar-logo: 40 45% 70%;
+    /* #c9b088 - Brighter gold/tan */
+    --navbar-link: 42 22% 72%;
+    /* #c4b9a8 - Warm light gray */
+    --navbar-link-hover: 40 50% 78%;
+    /* #d9c49b - Brighter warm gold */
+    --navbar-link-active: 25 60% 65%;
+    /* #e8a06a - Accent terracotta */
+    --navbar-profile-bg: 30 35% 45%;
+    /* #9a7d5f - Primary earth brown */
+
+    /* ===== Footer Colors ===== */
+    --footer-bg: 220 30% 8%;
+    /* #0f1318 - Deeper than navbar */
+    --footer-border: 220 15% 18%;
+    /* #282c33 - Subtle top border */
+    --footer-heading: 42 35% 82%;
+    /* #ddd2bd - Warm cream headings */
+    --footer-link: 42 18% 65%;
+    /* #b3a794 - Readable warm gray */
+    --footer-link-hover: 25 60% 65%;
+    /* #e8a06a - Accent terracotta */
+    --footer-copyright: 30 12% 50%;
+    /* #877f75 - Muted but readable */
+
+    /* ===== Product Card Colors ===== */
+    --product-card-bg: 28 18% 15%;
+    /* #2d2620 - Warmer card elevation */
+    --product-card-border: 28 12% 24%;
+    /* #433c34 - Subtle warm border */
+    --product-card-hover-border: 30 35% 40%;
+    /* #8a6d4f - Primary color hover */
+    --product-title: 42 30% 85%;
+    /* #e2d8c8 - High contrast warm white */
+    --product-price: 40 50% 72%;
+    /* #d4bd87 - Golden highlight */
+    --product-details-btn: 28 15% 28%;
+    /* #4d453d - Subtle warm dark */
+    --product-cart-btn: 25 58% 60%;
+    /* #df9561 - Accent slightly brighter */
+
+    /* ===== Hero & Empty States ===== */
+    --hero-gradient-start: 220 30% 10%;
+    /* #121720 - Deep blue-tinted dark */
+    --hero-gradient-end: 28 20% 12%;
+    /* #231e18 - Warm brown dark */
+    --empty-state-bg: 28 16% 14%;
+    /* #292319 - Elevated warm surface */
+    --browse-btn: 30 40% 50%;
+    /* #a5815b - Lighter earth brown */
   }
 
 
-    .product-card {
-      @apply bg-card border-border;
-    }
-
-    .btn-primary {
-      @apply bg-primary text-primary-foreground hover:bg-primary/90;
-    }
-
-    .btn-secondary {
-      @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
-    }
-
-    .btn-accent {
-      @apply bg-accent text-accent-foreground hover:bg-accent/90;
-    }
-
-    .section-title,
-    .page-title {
-      @apply text-foreground;
-    }
+  .product-card {
+    @apply bg-card border-border;
   }
 
-
-  [data-color-scheme="warm"] {
-    --primary: 25 75% 45%;
-    --accent: 15 85% 55%;
-    --secondary: 35 60% 50%;
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
-  [data-color-scheme="cool"] {
-    --primary: 220 75% 45%;
-    --accent: 200 85% 55%;
-    --secondary: 180 60% 50%;
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/90;
   }
 
-  [data-color-scheme="vintage"] {
-    --primary: 40 35% 40%;
-    --accent: 25 45% 45%;
-    --secondary: 60 25% 55%;
-    --background: 40 15% 92%;
-    --muted: 40 10% 85%;
+  .btn-accent {
+    @apply bg-accent text-accent-foreground hover:bg-accent/90;
   }
 
-
-  [data-font-size="small"] {
-    font-size: 14px;
+  .section-title,
+  .page-title {
+    @apply text-foreground;
   }
-
-  [data-font-size="medium"] {
-    font-size: 16px;
-  }
-
-  [data-font-size="large"] {
-    font-size: 18px;
-  }
+}
 
 
-  .high-contrast {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
-    --border: 0 0% 0%;
-    --primary: 0 0% 0%;
-    --primary-foreground: 0 0% 100%;
-  }
+[data-color-scheme="warm"] {
+  --primary: 25 75% 45%;
+  --accent: 15 85% 55%;
+  --secondary: 35 60% 50%;
+}
 
-  .dark.high-contrast {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 100%;
-    --border: 0 0% 100%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-  }
+[data-color-scheme="cool"] {
+  --primary: 220 75% 45%;
+  --accent: 200 85% 55%;
+  --secondary: 180 60% 50%;
+}
+
+[data-color-scheme="vintage"] {
+  --primary: 40 35% 40%;
+  --accent: 25 45% 45%;
+  --secondary: 60 25% 55%;
+  --background: 40 15% 92%;
+  --muted: 40 10% 85%;
+}
 
 
-  .no-animations *,
-  .no-animations *::before,
-  .no-animations *::after {
+[data-font-size="small"] {
+  font-size: 14px;
+}
+
+[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+[data-font-size="large"] {
+  font-size: 18px;
+}
+
+
+.high-contrast {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --border: 0 0% 0%;
+  --primary: 0 0% 0%;
+  --primary-foreground: 0 0% 100%;
+}
+
+.dark.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 0%;
+  --card-foreground: 0 0% 100%;
+  --border: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+}
+
+
+.no-animations *,
+.no-animations *::before,
+.no-animations *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduce-motion {
+  scroll-behavior: auto !important;
+}
+
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-
-  .reduce-motion {
-    scroll-behavior: auto !important;
-  }
-
-  .reduce-motion *,
-  .reduce-motion *::before,
-  .reduce-motion *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-
-  @media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
+}
 
 
 @layer base {
@@ -303,7 +387,7 @@
 
 @layer components {
   .hero-section {
-    @apply relative h-[80vh] min-h-[600px] w-full bg-sawatsya-cream overflow-hidden;
+    @apply relative h-[80vh] min-h-[600px] w-full bg-background overflow-hidden;
     background-attachment: fixed;
     background-size: cover;
     background-position: center;
@@ -317,7 +401,7 @@
   }
 
   .product-card {
-    @apply bg-white rounded-lg border border-sawatsya-sand p-4 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden;
+    @apply bg-card text-card-foreground rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden;
   }
 
   .btn-primary {
@@ -344,11 +428,11 @@
   }
 
   .section-title {
-    @apply text-3xl md:text-4xl font-serif font-medium text-sawatsya-wood mb-6 md:mb-8;
+    @apply text-3xl md:text-4xl font-serif font-medium text-foreground mb-6 md:mb-8;
   }
 
   .page-title {
-    @apply text-4xl md:text-5xl font-serif font-medium text-sawatsya-wood mb-6 md:mb-8 text-center;
+    @apply text-4xl md:text-5xl font-serif font-medium text-foreground mb-6 md:mb-8 text-center;
   }
 
   /* Mobile-specific utilities */
@@ -376,7 +460,8 @@
     }
 
     /* Prevent text selection on buttons */
-    button, a {
+    button,
+    a {
       -webkit-user-select: none;
       user-select: none;
     }

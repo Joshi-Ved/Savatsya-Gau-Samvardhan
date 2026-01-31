@@ -34,21 +34,21 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white sticky top-0 z-50 shadow-sm dark:bg-gray-900">
+    <nav className="bg-white sticky top-0 z-50 shadow-sm dark:bg-dark-navbar dark:border-b dark:border-dark-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex items-center dark:bg-gray-900">
+          <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="font-serif text-xl md:text-2xl font-bold text-sawatsya-earth whitespace-nowrap">SAVATSYA GAU SAMVARDHAN</span>
+              <span className="font-serif text-xl md:text-2xl font-bold text-sawatsya-earth dark:text-dark-foreground whitespace-nowrap">SAVATSYA GAU SAMVARDHAN</span>
             </Link>
             <div className="hidden md:ml-10 md:flex md:space-x-6 whitespace-nowrap">
-              <Link to="/" className="px-3 py-2 text-sawatsya-wood hover:text-sawatsya-terracotta transition-colors">Home</Link>
-              <Link to="/products" className="px-3 py-2 text-sawatsya-wood hover:text-sawatsya-terracotta transition-colors">Products</Link>
-              <Link to="/about" className="px-3 py-2 text-sawatsya-wood hover:text-sawatsya-terracotta transition-colors">About</Link>
-              <Link to="/contact" className="px-3 py-2 text-sawatsya-wood hover:text-sawatsya-terracotta transition-colors">Contact</Link>
+              <Link to="/" className="px-3 py-2 text-sawatsya-wood dark:text-dark-foreground hover:text-sawatsya-terracotta dark:hover:text-dark-accent transition-colors">Home</Link>
+              <Link to="/products" className="px-3 py-2 text-sawatsya-wood dark:text-dark-foreground hover:text-sawatsya-terracotta dark:hover:text-dark-accent transition-colors">Products</Link>
+              <Link to="/about" className="px-3 py-2 text-sawatsya-wood dark:text-dark-foreground hover:text-sawatsya-terracotta dark:hover:text-dark-accent transition-colors">About</Link>
+              <Link to="/contact" className="px-3 py-2 text-sawatsya-wood dark:text-dark-foreground hover:text-sawatsya-terracotta dark:hover:text-dark-accent transition-colors">Contact</Link>
               <button
                 onClick={handleLocateUs}
-                className="px-3 py-2 text-sawatsya-wood hover:text-sawatsya-terracotta transition-colors flex items-center gap-1 whitespace-nowrap"
+                className="px-3 py-2 text-sawatsya-wood dark:text-[hsl(var(--navbar-link))] hover:text-sawatsya-terracotta dark:hover:text-[hsl(var(--navbar-link-hover))] transition-colors flex items-center gap-1 whitespace-nowrap"
               >
                 <MapPin size={16} />
                 Locate Us
@@ -61,7 +61,7 @@ const Navbar = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="p-2 text-sawatsya-wood hover:bg-sawatsya-cream hover:text-sawatsya-earth transition-all duration-200 rounded-lg">
-                    <div className="flex items-center space-x-2">
+                    <Link to="/" className="flex items-center space-x-2 group dark:text-dark-foreground">
                       <div className="w-8 h-8 rounded-full overflow-hidden bg-sawatsya-earth flex items-center justify-center text-sm font-medium hover:bg-sawatsya-terracotta hover:scale-105 transition-all duration-200 shadow-sm">
                         {(() => {
                           const avatarSrc = user?.avatar || user?.profilePicture || null;
@@ -72,7 +72,7 @@ const Navbar = () => {
                         })()}
                       </div>
                       <span className="hidden lg:block font-medium">{user?.name}</span>
-                    </div>
+                    </Link>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
@@ -92,7 +92,7 @@ const Navbar = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link to="/login" className="p-2 text-sawatsya-wood hover:text-sawatsya-terracotta transition-colors">
+              <Link to="/login" className="text-sawatsya-wood dark:text-dark-foreground font-serif text-2xl font-bold transition-colors">
                 <User size={20} />
               </Link>
             )}
@@ -130,7 +130,7 @@ const Navbar = () => {
 
       { }
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-sawatsya-sand animate-fade-in">
+        <div className="md:hidden bg-white dark:bg-dark-navbar border-t border-sawatsya-sand/30 dark:border-dark-border">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <Link to="/"
               className="block px-3 py-2 text-sawatsya-wood hover:bg-sawatsya-cream rounded-md"

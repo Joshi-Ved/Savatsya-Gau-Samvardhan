@@ -59,6 +59,24 @@ export default {
           sand: "#DBC8AA",
           wood: "#5c4f3d",
           amber: "#D9A566"
+        },
+        dark: {
+          background: '#1f1915',     // Warm dark base
+          foreground: '#ebe4d6',     // Warm cream text
+          card: '#342e28',           // Elevated card surfaces
+          'card-hover': '#3a332c',   // Card hover state
+          muted: '#3d3730',          // Muted sections
+          'muted-foreground': '#b5a697', // Muted text
+          navbar: '#1a1f28',         // Blue-tinted navbar
+          footer: '#0f1318',         // Deeper footer
+          border: '#453f38',         // Subtle borders
+          input: '#2f2a24',          // Input backgrounds
+          'input-border': '#4a433b', // Input borders
+          accent: '#e19862',         // Terracotta accent
+          'accent-hover': '#d98953', // Accent hover
+          primary: '#a07f5d',        // Primary brown
+          secondary: '#627c4e',      // Olive green
+          price: '#d4bd87',          // Golden price
         }
       },
       borderRadius: {

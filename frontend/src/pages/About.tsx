@@ -6,7 +6,7 @@ const About = () => {
   return (
     <div className="min-h-screen">
       { }
-      <section className="bg-sawatsya-cream dark:bg-gray-900 py-16 md:py-24">
+      <section className="bg-sawatsya-cream dark:bg-dark-background py-16 md:py-24">
         <div className="section-container">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-serif font-medium text-sawatsya-wood dark:text-gray-100 mb-4">Our Story</h1>
@@ -44,18 +44,18 @@ const About = () => {
       </section>
 
       { }
-      <section className="bg-sawatsya-sand/30 dark:bg-gray-800 py-12 md:py-16">
+      <section className="bg-sawatsya-sand/30 dark:bg-dark-muted py-12 md:py-16">
         <div className="section-container">
           <h2 className="section-title text-center dark:text-gray-100">Our Values</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-sm">
               <h3 className="font-serif text-xl mb-4 text-sawatsya-wood dark:text-gray-100">Authenticity</h3>
               <p className="text-gray-700 dark:text-gray-300">
                 We stay true to traditional methods, never compromising on the authenticity of our production processes or the quality of our ingredients.
               </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-sm">
               <h3 className="font-serif text-xl mb-4 text-sawatsya-wood dark:text-gray-100">Sustainability</h3>
               <p className="text-gray-700 dark:text-gray-300">
                 We respect nature and work to ensure our practices are sustainable, minimizing our environmental footprint at every step.

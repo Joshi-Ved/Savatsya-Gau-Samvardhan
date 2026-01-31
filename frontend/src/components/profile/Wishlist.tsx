@@ -28,9 +28,9 @@ const Wishlist = () => {
     if (itemCount === 0) {
         return (
             <div className="text-center py-12">
-                <Heart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-                <h3 className="text-xl font-medium text-gray-600 mb-2">Your wishlist is empty</h3>
-                <p className="text-gray-500 mb-6">Start adding products you love!</p>
+                <Heart className="h-16 w-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+                <h3 className="text-xl font-medium text-gray-600 dark:text-gray-300 mb-2">Your wishlist is empty</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">Start adding products you love!</p>
                 <Button asChild className="bg-sawatsya-earth hover:bg-sawatsya-wood">
                     <Link to="/products">Browse Products</Link>
                 </Button>
@@ -43,7 +43,7 @@ const Wishlist = () => {
             {/* Header with count and clear button */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h3 className="text-lg font-medium text-sawatsya-wood">
+                    <h3 className="text-lg font-medium text-sawatsya-wood dark:text-gray-100">
                         {itemCount} {itemCount === 1 ? 'item' : 'items'} in your wishlist
                     </h3>
                     {priceDropItems.length > 0 && (
@@ -60,7 +60,7 @@ const Wishlist = () => {
                         clearWishlist();
                         toast.success('Wishlist cleared');
                     }}
-                    className="text-red-500 border-red-500 hover:bg-red-50"
+                    className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
                     Clear All
                 </Button>
@@ -73,7 +73,7 @@ const Wishlist = () => {
                     const priceDrop = item.priceAtAddition - item.product.price;
 
                     return (
-                        <Card key={item.product.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                        <Card key={item.product.id} className="overflow-hidden hover:shadow-md transition-shadow dark:bg-dark-card dark:border-dark-border">
                             <div className="relative">
                                 <Link to={`/product/${item.product.id}`}>
                                     <div className="aspect-square">
@@ -96,7 +96,7 @@ const Wishlist = () => {
 
                             <CardContent className="p-4">
                                 <Link to={`/product/${item.product.id}`}>
-                                    <h4 className="font-medium text-sawatsya-wood hover:text-sawatsya-earth transition-colors mb-1">
+                                    <h4 className="font-medium text-sawatsya-wood dark:text-gray-100 hover:text-sawatsya-earth transition-colors mb-1">
                                         {item.product.name}
                                     </h4>
                                 </Link>
@@ -104,11 +104,11 @@ const Wishlist = () => {
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="font-bold text-sawatsya-earth">₹{item.product.price}</span>
                                     {hasPriceDropped && (
-                                        <span className="text-sm text-gray-400 line-through">₹{item.priceAtAddition}</span>
+                                        <span className="text-sm text-gray-400 dark:text-gray-500 line-through">₹{item.priceAtAddition}</span>
                                     )}
                                 </div>
 
-                                <p className="text-xs text-gray-500 mb-3">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                                     Added {new Date(item.addedAt).toLocaleDateString()}
                                 </p>
 
@@ -124,7 +124,7 @@ const Wishlist = () => {
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="text-red-500 border-red-500 hover:bg-red-50"
+                                        className="text-red-500 border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
                                         onClick={() => handleRemove(item.product.id, item.product.name)}
                                     >
                                         <Trash2 className="h-4 w-4" />

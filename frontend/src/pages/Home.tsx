@@ -48,7 +48,7 @@ const Home = () => {
     <AnimatedPage>
       <div className="min-h-screen">
         { }
-        <section className="hero-section flex items-center bg-white dark:bg-gray-900">
+        <section className="hero-section flex items-center bg-white dark:bg-dark-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10 relative">
             <div className="max-w-lg">
               <AnimatedText variant="h1" className="text-5xl md:text-6xl font-serif font-bold text-sawatsya-wood dark:text-gray-100 mb-4">
@@ -74,7 +74,7 @@ const Home = () => {
         <section className="section-container">
           <h2 className="section-title text-center dark:text-gray-100">Our Products</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <div className="bg-sawatsya-cream dark:bg-gray-800 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="bg-sawatsya-cream dark:bg-dark-card rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300">
               <h3 className="font-serif text-2xl mb-2 text-sawatsya-wood dark:text-gray-100">Incense Sticks (Dhoop)</h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
                 Handcrafted with natural ingredients, our incense sticks create a serene atmosphere with their delicate fragrances. Made using traditional methods for the purest experience.
@@ -127,8 +127,8 @@ const Home = () => {
                     >
                       <Heart
                         className={`h-5 w-5 transition-colors ${isInWishlist(product.id)
-                            ? 'fill-red-500 text-red-500'
-                            : 'text-gray-400 hover:text-red-400'
+                          ? 'fill-red-500 text-red-500'
+                          : 'text-gray-400 hover:text-red-400'
                           }`}
                       />
                     </button>
@@ -178,23 +178,23 @@ const Home = () => {
         </section>
 
         { }
-        <section className="bg-sawatsya-sand/30 dark:bg-gray-800 py-12 md:py-16">
+        <section className="bg-sawatsya-sand/30 dark:bg-dark-muted py-12 md:py-16">
           <div className="section-container">
             <h2 className="section-title text-center dark:text-gray-100">What Our Customers Say</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+              <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-sm">
                 <p className="text-gray-700 dark:text-gray-300 mb-4 italic">
                   "The fragrance of these incense sticks is incredible. So pure and long-lasting. I've been using them for meditation and they create the perfect spiritual atmosphere."
                 </p>
                 <p className="font-medium text-sawatsya-wood dark:text-gray-100">- Priya S.</p>
               </div>
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+              <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-sm">
                 <p className="text-gray-700 dark:text-gray-300 mb-4 italic">
                   "This A2 ghee is exceptional! The aroma and taste are simply divine. It reminds me of the ghee my grandmother used to make from our village cows."
                 </p>
                 <p className="font-medium text-sawatsya-wood dark:text-gray-100">- Rahul M.</p>
               </div>
-              <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-sm">
+              <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-sm">
                 <p className="text-gray-700 dark:text-gray-300 mb-4 italic">
                   "I love the dedication to cow protection and natural products. You can really feel the purity and positive energy in everything they create."
                 </p>
@@ -206,7 +206,7 @@ const Home = () => {
 
         { }
         <section className="section-container">
-          <div className="bg-sawatsya-cream dark:bg-gray-800 rounded-lg p-8 text-center">
+          <div className="bg-sawatsya-cream dark:bg-dark-card rounded-lg p-8 text-center">
             <h2 className="text-2xl font-serif font-medium text-sawatsya-wood dark:text-gray-100 mb-4">Join Our Newsletter</h2>
             <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-md mx-auto">
               Stay updated with our latest products, special offers, and traditional recipes from Savatsya Gau Samvardhan.
@@ -217,7 +217,7 @@ const Home = () => {
                 placeholder="Your email address"
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
-                className="flex-1 px-4 py-2 border border-sawatsya-sand dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="flex-1 px-4 py-2 border border-sawatsya-sand dark:border-dark-input-border rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth bg-white dark:bg-dark-input text-gray-900 dark:text-dark-foreground"
               />
               <Button type="submit" className="btn-primary whitespace-nowrap" disabled={submittingNewsletter}>
                 {submittingNewsletter ? 'Subscribing...' : 'Subscribe'}

@@ -10,15 +10,15 @@ const Contact = () => {
     subject: '',
     message: ''
   });
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-   
+
     toast.success('Your message has been sent successfully!');
     setFormData({
       name: '',
@@ -27,28 +27,28 @@ const Contact = () => {
       message: ''
     });
   };
-  
+
   return (
     <div className="min-h-screen">
-      <section className="bg-sawatsya-cream py-16 md:py-24">
+      <section className="bg-sawatsya-cream dark:bg-dark-background py-16 md:py-24">
         <div className="section-container">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-serif font-medium text-sawatsya-wood mb-4">Contact Us</h1>
-            <p className="text-xl text-sawatsya-wood">
+            <h1 className="text-4xl md:text-5xl font-serif font-medium text-sawatsya-wood dark:text-gray-100 mb-4">Contact Us</h1>
+            <p className="text-xl text-sawatsya-wood dark:text-gray-300">
               We'd love to hear from you. Get in touch with us.
             </p>
           </div>
         </div>
       </section>
-      
+
       <section className="section-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {}
+          {/* Contact Form */}
           <div>
-            <h2 className="text-2xl font-serif font-medium text-sawatsya-wood mb-6">Send Us a Message</h2>
+            <h2 className="text-2xl font-serif font-medium text-sawatsya-wood dark:text-gray-100 mb-6">Send Us a Message</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Your Name
                 </label>
                 <input
@@ -58,12 +58,12 @@ const Contact = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-sawatsya-sand rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth"
+                  className="w-full px-4 py-2 border border-sawatsya-sand dark:border-dark-input-border rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth bg-white dark:bg-dark-input text-gray-900 dark:text-dark-foreground"
                 />
               </div>
-              
+
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email Address
                 </label>
                 <input
@@ -73,12 +73,12 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-sawatsya-sand rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth"
+                  className="w-full px-4 py-2 border border-sawatsya-sand dark:border-dark-input-border rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth bg-white dark:bg-dark-input text-gray-900 dark:text-dark-foreground"
                 />
               </div>
-              
+
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Subject
                 </label>
                 <select
@@ -87,7 +87,7 @@ const Contact = () => {
                   value={formData.subject}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-sawatsya-sand rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth"
+                  className="w-full px-4 py-2 border border-sawatsya-sand dark:border-dark-input-border rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth bg-white dark:bg-dark-input text-gray-900 dark:text-dark-foreground"
                 >
                   <option value="">Select a subject</option>
                   <option value="product-inquiry">Product Inquiry</option>
@@ -97,9 +97,9 @@ const Contact = () => {
                   <option value="other">Other</option>
                 </select>
               </div>
-              
+
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Your Message
                 </label>
                 <textarea
@@ -109,23 +109,23 @@ const Contact = () => {
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-sawatsya-sand rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth"
+                  className="w-full px-4 py-2 border border-sawatsya-sand dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-sawatsya-earth bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 ></textarea>
               </div>
-              
+
               <Button type="submit" className="btn-primary">
                 Send Message
               </Button>
             </form>
           </div>
-          
-          {}
+
+          {/* Contact Info */}
           <div>
-            <h2 className="text-2xl font-serif font-medium text-sawatsya-wood mb-6">Contact Information</h2>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
-              <h3 className="font-medium text-lg text-sawatsya-wood mb-4">Reach Us</h3>
-              
+            <h2 className="text-2xl font-serif font-medium text-sawatsya-wood dark:text-gray-100 mb-6">Contact Information</h2>
+
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm mb-6">
+              <h3 className="font-medium text-lg text-sawatsya-wood dark:text-gray-100 mb-4">Reach Us</h3>
+
               <div className="space-y-4">
                 <div className="flex items-start">
                   <div className="w-10 h-10 bg-sawatsya-cream rounded-full flex items-center justify-center flex-shrink-0 mr-4">
@@ -140,55 +140,55 @@ const Contact = () => {
                     </address>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
-                  <div className="w-10 h-10 bg-sawatsya-cream rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                  <div className="w-10 h-10 bg-sawatsya-cream dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mr-4">
                     <span className="text-sawatsya-earth text-lg">📧</span>
                   </div>
                   <div>
-                    <p className="font-medium">Email</p>
-                    <a href="mailto:vedjoshi0304@gmail.com" className="text-gray-600 hover:text-sawatsya-terracotta">
+                    <p className="font-medium dark:text-gray-100">Email</p>
+                    <a href="mailto:vedjoshi0304@gmail.com" className="text-gray-600 dark:text-gray-400 hover:text-sawatsya-terracotta">
                       vedjoshi0304@gmail.com
                     </a>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start">
-                  <div className="w-10 h-10 bg-sawatsya-cream rounded-full flex items-center justify-center flex-shrink-0 mr-4">
+                  <div className="w-10 h-10 bg-sawatsya-cream dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0 mr-4">
                     <span className="text-sawatsya-earth text-lg">📞</span>
                   </div>
                   <div>
-                    <p className="font-medium">Phone</p>
-                    <a href="tel:+91 9588958811" className="text-gray-600 hover:text-sawatsya-terracotta">
+                    <p className="font-medium dark:text-gray-100">Phone</p>
+                    <a href="tel:+91 9588958811" className="text-gray-600 dark:text-gray-400 hover:text-sawatsya-terracotta">
                       +91 9588958811
                     </a>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-medium text-lg text-sawatsya-wood mb-4">Business Hours</h3>
-              
+
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+              <h3 className="font-medium text-lg text-sawatsya-wood dark:text-gray-100 mb-4">Business Hours</h3>
+
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Monday - Friday</span>
-                  <span>9:00 AM - 6:00 PM</span>
+                  <span className="text-gray-600 dark:text-gray-400">Monday - Friday</span>
+                  <span className="dark:text-gray-200">9:00 AM - 6:00 PM</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Saturday</span>
-                  <span>10:00 AM - 4:00 PM</span>
+                  <span className="text-gray-600 dark:text-gray-400">Saturday</span>
+                  <span className="dark:text-gray-200">10:00 AM - 4:00 PM</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Sunday</span>
-                  <span>Closed</span>
+                  <span className="text-gray-600 dark:text-gray-400">Sunday</span>
+                  <span className="dark:text-gray-200">Closed</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-      
+
       {/* Map Section */}
       <section className="mt-12">
         <div className="h-80 rounded-lg overflow-hidden shadow-lg">
@@ -204,10 +204,10 @@ const Contact = () => {
           ></iframe>
         </div>
         <div className="mt-4 text-center">
-          <p className="text-sawatsya-wood mb-2">
+          <p className="text-sawatsya-wood dark:text-gray-300 mb-2">
             <strong>Savatsya Gau Samvardhan</strong> - Varade Gaon, Badlapur, Maharashtra, India
           </p>
-          <Button 
+          <Button
             onClick={() => window.open("https://www.google.com/maps/place/Savatsa+Gau+Savardhan/@19.1286699,73.2314941,17z/data=!3m1!4b1!4m6!3m5!1s0x3be7ed005b6d2dd1:0xc4ef2742f5d9bfad!8m2!3d19.1286648!4d73.234069!16s%2Fg%2F11x5lg19np?entry=ttu&g_ep=EgoyMDI1MDUyOC4wIKXMDSoASAFQAw%3D%3D", '_blank')}
             variant="outline"
             className="flex items-center gap-2"
