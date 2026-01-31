@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,12 +8,14 @@ import { User, Settings, Heart, Package, MapPin, Activity, Mail } from 'lucide-r
 import ProfileManager from '@/components/profile/ProfileManager';
 import UserSettings from '@/components/profile/UserSettings';
 import OrderHistory from '@/components/profile/OrderHistory';
+import Wishlist from '@/components/profile/Wishlist';
 import AnimatedPage from '@/components/ui/AnimatedPage';
 import { AnimatedCard, AnimatedText, AnimatedButton } from '@/components/ui/AnimatedComponents';
 import { API_ENDPOINTS } from '@/config/api';
 
 const Profile = () => {
   const { user, logout } = useAuth();
+  const { getItemCount } = useWishlist();
   const [activeTab, setActiveTab] = useState('overview');
   const [orderCount, setOrderCount] = useState(0);
 
@@ -72,7 +75,7 @@ const Profile = () => {
             </AnimatedText>
           </div>
 
-          {}
+          { }
           <AnimatedCard delay={0.2} className="mb-8">
             <CardHeader>
               <CardTitle className="text-center text-2xl font-serif text-sawatsya-wood dark:text-gray-100">
@@ -93,9 +96,9 @@ const Profile = () => {
             </CardContent>
           </AnimatedCard>
 
-          {}
+          { }
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview" className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
                 <span>Overview</span>
@@ -103,6 +106,10 @@ const Profile = () => {
               <TabsTrigger value="profile" className="flex items-center space-x-2">
                 <Settings className="h-4 w-4" />
                 <span>Profile</span>
+              </TabsTrigger>
+              <TabsTrigger value="wishlist" className="flex items-center space-x-2">
+                <Heart className="h-4 w-4" />
+                <span>Wishlist</span>
               </TabsTrigger>
               <TabsTrigger value="settings" className="flex items-center space-x-2">
                 <Activity className="h-4 w-4" />
@@ -114,7 +121,7 @@ const Profile = () => {
               </TabsTrigger>
             </TabsList>
 
-            {}
+            { }
             <TabsContent value="overview" className="space-y-6">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <AnimatedCard delay={0.3}>
@@ -135,8 +142,8 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       variant="outline"
                       onClick={() => setActiveTab('profile')}
                     >
@@ -157,8 +164,8 @@ const Profile = () => {
                     <p className="text-xs text-muted-foreground">
                       Saved addresses
                     </p>
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       variant="outline"
                       onClick={() => setActiveTab('profile')}
                     >
@@ -177,8 +184,8 @@ const Profile = () => {
                     <p className="text-xs text-muted-foreground">
                       Total orders placed
                     </p>
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       variant="outline"
                       onClick={() => setActiveTab('orders')}
                     >
@@ -193,54 +200,54 @@ const Profile = () => {
                     <Heart className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-sawatsya-earth">0</div>
+                    <div className="text-2xl font-bold text-sawatsya-earth">{getItemCount()}</div>
                     <p className="text-xs text-muted-foreground">
                       Items in wishlist
                     </p>
-                    <Button 
-                      className="w-full mt-4" 
+                    <Button
+                      className="w-full mt-4"
                       variant="outline"
-                      onClick={() => window.location.href = '/products'}
+                      onClick={() => setActiveTab('wishlist')}
                     >
-                      Browse Products
+                      View Wishlist
                     </Button>
                   </CardContent>
                 </AnimatedCard>
               </div>
 
-              {}
+              { }
               <AnimatedCard delay={0.7}>
                 <CardHeader>
                   <CardTitle>Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="h-20 flex flex-col items-center justify-center space-y-2"
                       onClick={() => window.location.href = '/products'}
                     >
                       <Package className="h-6 w-6" />
                       <span className="text-sm">Shop Now</span>
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="h-20 flex flex-col items-center justify-center space-y-2"
                       onClick={() => setActiveTab('orders')}
                     >
                       <Activity className="h-6 w-6" />
                       <span className="text-sm">Track Order</span>
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="h-20 flex flex-col items-center justify-center space-y-2"
                       onClick={() => window.location.href = '/contact'}
                     >
                       <Mail className="h-6 w-6" />
                       <span className="text-sm">Contact Us</span>
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="h-20 flex flex-col items-center justify-center space-y-2 text-red-600 hover:text-red-700"
                       onClick={logout}
                     >
@@ -252,17 +259,22 @@ const Profile = () => {
               </AnimatedCard>
             </TabsContent>
 
-            {}
+            { }
             <TabsContent value="profile">
               <ProfileManager />
             </TabsContent>
 
-            {}
+            {/* Wishlist Tab Content */}
+            <TabsContent value="wishlist">
+              <Wishlist />
+            </TabsContent>
+
+            {/* Settings Tab Content */}
             <TabsContent value="settings">
               <UserSettings />
             </TabsContent>
 
-            {}
+            { }
             <TabsContent value="orders">
               <OrderHistory />
             </TabsContent>
