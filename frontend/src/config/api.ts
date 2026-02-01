@@ -21,6 +21,7 @@ export const API_ENDPOINTS = {
   },
   ORDERS: `${API_BASE_URL}/api/orders`,
   PRODUCTS: `${API_BASE_URL}/api/products`,
+  REVIEWS: (productId: string) => `${API_BASE_URL}/api/products/${productId}/reviews`,
   ANALYTICS: `${API_BASE_URL}/api/analytics`,
   NEWSLETTER: {
     SUBSCRIBE: `${API_BASE_URL}/api/newsletter/subscribe`,

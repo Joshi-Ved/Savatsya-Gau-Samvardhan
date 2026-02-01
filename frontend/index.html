@@ -44,11 +44,32 @@
 
   <script>
     // Register service worker for PWA support
+    // Register service worker for PWA support (Production only)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js?v=2')
-          .then(registration => console.log('SW registered:', registration))
-          .catch(err => console.log('SW registration failed:', err));
+        // Skip service worker in development/localhost to avoid caching issues with HMR
+        const isLocalhost = Boolean(
+          window.location.hostname === 'localhost' ||
+          window.location.hostname === '[::1]' ||
+          window.location.hostname.match(
+            /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+          )
+        );
+
+        if (isLocalhost) {
+          console.log('Service Worker skipped in development');
+          // Unregister any existing service workers to fix reload loops
+          navigator.serviceWorker.getRegistrations().then(function (registrations) {
+            for (let registration of registrations) {
+              registration.unregister();
+              console.log('Unregistered existing service worker in dev mode');
+            }
+          });
+        } else {
+          navigator.serviceWorker.register('/service-worker.js?v=2')
+            .then(registration => console.log('SW registered:', registration))
+            .catch(err => console.log('SW registration failed:', err));
+        }
       });
     }
   </script>

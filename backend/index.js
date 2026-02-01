@@ -16,6 +16,7 @@ import emailRoutes from './routes/emails.js';
 import emailTestRoutes from './routes/emailTests.js';
 import productRoutes from './routes/products.js';
 import analyticsRoutes from './routes/analytics.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 
 
@@ -115,6 +116,7 @@ app.use('/api/emails', emailRoutes);
 app.use('/api/email-tests', emailTestRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/products/:productId/reviews', reviewRoutes);
 
 // Static serving of frontend in production (disabled for development)
 // const __filename = fileURLToPath(import.meta.url);

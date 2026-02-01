@@ -6,6 +6,8 @@ import { getProductById } from '@/data/products';
 import { useCart } from '@/contexts/CartContext';
 import ProductImage from '@/components/ui/ProductImage';
 import { toast } from 'sonner';
+import ReviewList from '@/components/reviews/ReviewList';
+import ReviewForm from '@/components/reviews/ReviewForm';
 
 const ProductDetail = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -13,6 +15,7 @@ const ProductDetail = () => {
   const product = productId ? getProductById(productId) : undefined;
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [reviewsRefreshTrigger, setReviewsRefreshTrigger] = useState(0);
 
   if (!product) {
     return (
@@ -99,6 +102,7 @@ const ProductDetail = () => {
               </button>
               <input
                 id="quantity"
+                name="quantity"
                 type="number"
                 min="1"
                 value={quantity}
@@ -142,6 +146,20 @@ const ProductDetail = () => {
                 <li>• Rich in nutrients and beneficial fatty acids</li>
               </ul>
             )}
+          </div>
+
+          <div className="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8">
+            <h2 className="text-2xl font-serif font-medium text-sawatsya-wood dark:text-gray-100 mb-6">Reviews & Ratings</h2>
+            <div className="grid grid-cols-1 gap-10">
+              <ReviewForm
+                productId={product.id}
+                onReviewSubmitted={() => setReviewsRefreshTrigger(prev => prev + 1)}
+              />
+              <ReviewList
+                productId={product.id}
+                refreshTrigger={reviewsRefreshTrigger}
+              />
+            </div>
           </div>
         </div>
       </div>

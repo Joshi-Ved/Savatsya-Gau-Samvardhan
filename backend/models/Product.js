@@ -6,6 +6,12 @@ const productSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  slug: {
+    type: String,
+    unique: true,
+    required: true,
+    index: true
+  },
   description: {
     type: String,
     required: true
@@ -39,6 +45,17 @@ const productSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  rating: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
+  numReviews: {
+    type: Number,
+    default: 0,
+    min: 0
   }
 }, {
   timestamps: true
