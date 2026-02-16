@@ -5,8 +5,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import express from "express";
 import http from 'http';
-import mongoose from "mongoose";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+
 import orderRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/user.js';
@@ -17,35 +19,52 @@ import emailTestRoutes from './routes/emailTests.js';
 import productRoutes from './routes/products.js';
 import analyticsRoutes from './routes/analytics.js';
 import reviewRoutes from './routes/reviewRoutes.js';
-
-
+import { connectDatabase } from './config/db.js';
+import { globalErrorHandler } from './middleware/errorHandler.js';
+import logger from './utils/logger.js';
 
 // Load environment variables early
 dotenv.config();
 
-console.log('[startup] Environment variables loaded:');
-console.log('[startup] MONGO_URI exists:', !!process.env.MONGO_URI);
-console.log('[startup] MONGO_URI length:', process.env.MONGO_URI?.length || 0);
-console.log('[startup] JWT_SECRET exists:', !!process.env.JWT_SECRET);
-console.log('[startup] SENDGRID_API_KEY exists:', !!process.env.SENDGRID_API_KEY);
+logger.info('startup', 'Environment loaded', {
+  MONGO_URI: !!process.env.MONGO_URI,
+  JWT_SECRET: !!process.env.JWT_SECRET,
+  SENDGRID_API_KEY: !!process.env.SENDGRID_API_KEY,
+});
 
 const app = express();
+
+// --- CORS origins via environment variable ---
+const envOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',')
+  : [];
 
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://savatsya-gau-samvardhan.vercel.app',
-  'https://savatsya-gau-samvardhan-git-main-blankstar1233s-projects.vercel.app',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
+  ...envOrigins,
 ].filter(Boolean);
+
+app.use(helmet());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.some(allowed => origin?.includes('vercel.app'))) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-    }
+    // Allow requests with no origin (server-to-server, curl, mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    logger.warn('cors', `Blocked request from origin: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -54,52 +73,8 @@ app.use(cors({
 
 app.use(express.json());
 
-// Ensure MONGO_URI is present but don't crash the process; log a helpful warning instead
-if (!process.env.MONGO_URI) {
-  console.warn("Warning: MONGO_URI not set. Database connection will not be established. Set MONGO_URI in backend/.env or environment variables.");
-} else {
-  // Enhanced MongoDB connection with better timeout settings
-  const mongooseOptions = {
-    serverSelectionTimeoutMS: 30000, // 30 seconds
-    connectTimeoutMS: 30000, // 30 seconds
-    socketTimeoutMS: 45000, // 45 seconds
-    maxPoolSize: 10, // Maintain up to 10 socket connections
-    minPoolSize: 5, // Maintain a minimum of 5 socket connections
-    maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
-  };
-
-  console.log('[database] Attempting to connect to MongoDB...');
-
-  mongoose.connect(process.env.MONGO_URI, mongooseOptions)
-    .then(() => {
-      console.log("✅ MongoDB connected successfully");
-      console.log(`[database] Connected to: ${mongoose.connection.name}`);
-    })
-    .catch((err) => {
-      console.error("❌ MongoDB connection error:", err.message);
-      console.error("[database] Connection failed. Please check:");
-      console.error("1. MongoDB Atlas cluster is running and not paused");
-      console.error("2. Network connectivity to MongoDB Atlas");
-      console.error("3. Database credentials are correct");
-      console.error("4. IP address is whitelisted in MongoDB Atlas");
-
-      // Don't exit the server, continue running without database
-      console.warn("⚠️  Server continuing without database connection");
-    });
-
-  // Handle connection events
-  mongoose.connection.on('disconnected', () => {
-    console.warn("⚠️  MongoDB disconnected");
-  });
-
-  mongoose.connection.on('reconnected', () => {
-    console.log("🔄 MongoDB reconnected");
-  });
-
-  mongoose.connection.on('error', (err) => {
-    console.error("❌ MongoDB connection error:", err.message);
-  });
-}
+// Connect to database (extracted to config/db.js)
+connectDatabase();
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -118,14 +93,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/products/:productId/reviews', reviewRoutes);
 
-// Static serving of frontend in production (disabled for development)
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
-// const frontendDist = path.resolve(__dirname, '../frontend/dist');
-// app.use(express.static(frontendDist));
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(frontendDist, 'index.html'));
-// });
+// Global error handler — must be registered AFTER all routes
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || 5000;
 
@@ -138,12 +107,12 @@ try {
     const { broadcast } = attachWebsocket(server, { path: '/ws' });
 
     app.locals.broadcast = broadcast;
-    console.log('WebSocket server attached at /ws');
+    logger.info('websocket', 'WebSocket server attached at /ws');
   }).catch((err) => {
-    console.warn('WebSocket module not available or failed to initialize:', err?.message || err);
+    logger.warn('websocket', 'WebSocket module not available', { error: err?.message });
   });
 } catch (err) {
-  console.warn('WebSocket attach skipped:', err?.message || err);
+  logger.warn('websocket', 'WebSocket attach skipped', { error: err?.message });
 }
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => logger.info('startup', `Server running on port ${PORT}`));

@@ -31,8 +31,7 @@ const About = () => {
           </div>
           <div className="h-80 rounded-lg flex items-center justify-center relative overflow-hidden group">
             <div
-              className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-700 group-hover:scale-110"
-              style={{ backgroundImage: "url('/images/products/ghee/ghee-1kg.jpeg')" }}
+              className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-700 group-hover:scale-110 bg-[url('/images/products/ghee/ghee-1kg.jpeg')]"
             />
             <div className="absolute inset-0 bg-black/50 z-10" />
             <div className="text-center relative z-20">

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { GOOGLE_MAPS_LOCATION_URL, GOOGLE_MAPS_EMBED_URL } from '@/config/constants';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -193,10 +194,10 @@ const Contact = () => {
       <section className="mt-12">
         <div className="h-80 rounded-lg overflow-hidden shadow-lg">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.5827392832823!2d73.23140907516897!3d19.128664882053658!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ed005b6d2dd1%3A0xc4ef2742f5d9bfad!2sSavatsa%20Gau%20Savardhan!5e0!3m2!1sen!2sin!4v1698234567890!5m2!1sen!2sin"
+            src={GOOGLE_MAPS_EMBED_URL}
             width="100%"
             height="100%"
-            style={{ border: 0 }}
+            className="border-0"
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
@@ -208,7 +209,7 @@ const Contact = () => {
             <strong>Savatsya Gau Samvardhan</strong> - Varade Gaon, Badlapur, Maharashtra, India
           </p>
           <Button
-            onClick={() => window.open("https://www.google.com/maps/place/Savatsa+Gau+Savardhan/@19.1286699,73.2314941,17z/data=!3m1!4b1!4m6!3m5!1s0x3be7ed005b6d2dd1:0xc4ef2742f5d9bfad!8m2!3d19.1286648!4d73.234069!16s%2Fg%2F11x5lg19np?entry=ttu&g_ep=EgoyMDI1MDUyOC4wIKXMDSoASAFQAw%3D%3D", '_blank')}
+            onClick={() => window.open(GOOGLE_MAPS_LOCATION_URL, '_blank', 'noopener,noreferrer')}
             variant="outline"
             className="flex items-center gap-2"
           >
