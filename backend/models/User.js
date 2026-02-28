@@ -72,10 +72,8 @@ const userSchema = new mongoose.Schema({
   isActive: { type: Boolean, default: true },
   deletionScheduled: deletionScheduleSchema,
   isAdmin: { type: Boolean, default: false },
-
-
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+}, {
+  timestamps: true
 });
 
 

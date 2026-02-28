@@ -1,35 +1,40 @@
 
+import React, { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import AppProviders from "@/components/AppProviders";
 import "./index.css"
 
-
-
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 
+// Lazy-loaded page components for code splitting
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Login = lazy(() => import("./pages/Login"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Profile = lazy(() => import("./pages/Profile"));
+const CheckoutSuccess = lazy(() => import("./pages/CheckoutSuccess"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const ProductList = lazy(() => import("./pages/admin/ProductList"));
+const ProductForm = lazy(() => import("./pages/admin/ProductForm"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const OrderList = lazy(() => import("./pages/admin/OrderList"));
+const UserList = lazy(() => import("./pages/admin/UserList"));
+const LiveActivity = lazy(() => import("./pages/admin/LiveActivity"));
 
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Profile from "./pages/Profile";
-import CheckoutSuccess from "./pages/CheckoutSuccess";
-import Checkout from "./pages/Checkout";
-import NotFound from "./pages/NotFound";
-import AdminLayout from "./pages/admin/AdminLayout";
-import ProductList from "./pages/admin/ProductList";
-import ProductForm from "./pages/admin/ProductForm";
-import Dashboard from "./pages/admin/Dashboard";
-import OrderList from "./pages/admin/OrderList";
-import UserList from "./pages/admin/UserList";
-import LiveActivity from "./pages/admin/LiveActivity";
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+);
 
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -77,6 +82,7 @@ const App = () => (
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
+          <Suspense fallback={<PageLoader />}>
           <Routes>
                           <Route path="/" element={<Home />} />
                           <Route path="/about" element={<About />} />
@@ -123,6 +129,7 @@ const App = () => (
 
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+                      </Suspense>
                       </main>
                       <Footer />
                     </div>

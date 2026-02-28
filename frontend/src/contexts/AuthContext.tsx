@@ -243,52 +243,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ preferences: prefs })
-      }).catch(() => { });
+      }).catch((err) => {
+        console.warn('Failed to sync preferences:', err.message);
+      });
     }
   };
 
   const updateUser = async (updates: Partial<Pick<User, 'name' | 'email' | 'phone' | 'profilePicture'>>) => {
-    console.log('updateUser called with:', updates);
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error('No authentication token found');
-      return;
+      throw new Error('No authentication token found');
     }
 
-    console.log('Making API call to /api/user/profile with token:', token ? 'present' : 'missing');
+    const response = await fetch(API_ENDPOINTS.USER.PROFILE, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updates)
+    });
 
-    try {
-      const response = await fetch(API_ENDPOINTS.USER.PROFILE, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updates)
-      });
-
-      console.log('API response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to update user profile:', errorData);
-        throw new Error(errorData.error || 'Failed to update profile');
-      }
-
-      const result = await response.json();
-      console.log('Profile updated successfully:', result);
-
-      console.log('Updating local user state with:', updates);
-      setUser(prev => {
-        const newUser = prev ? { ...prev, ...updates } : prev;
-        console.log('New user state:', newUser);
-        return newUser;
-      });
-
-    } catch (error) {
-      console.error('Error updating user profile:', error);
-      throw error;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to update profile');
     }
+
+    await response.json();
+    setUser(prev => prev ? { ...prev, ...updates } : prev);
   };
 
   const addAddress = (address: Omit<Address, 'id'>) => {
@@ -308,7 +290,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ id: `addr_${Date.now()}`, ...address })
-      }).catch(() => { });
+      }).catch((err) => {
+        console.warn('Failed to sync new address:', err.message);
+      });
     }
   };
 
@@ -330,7 +314,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(updates)
-      }).catch(() => { });
+      }).catch((err) => {
+        console.warn('Failed to sync address update:', err.message);
+      });
     }
   };
 
@@ -341,7 +327,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       fetch(API_ENDPOINTS.USER.ADDRESS(id), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
-      }).catch(() => { });
+      }).catch((err) => {
+        console.warn('Failed to sync address deletion:', err.message);
+      });
     }
   };
 

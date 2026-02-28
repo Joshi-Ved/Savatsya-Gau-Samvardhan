@@ -3,56 +3,88 @@ import crypto from 'crypto';
 import multer from 'multer';
 import { sendEmail, isEmailEnabled } from '../utils/mailer.js';
 import InboundEmail from '../models/InboundEmail.js';
+import { asyncHandler } from '../middleware/errorHandler.js';
+import logger from '../utils/logger.js';
 
 const router = express.Router();
+
+// HTML escape utility to prevent XSS in email templates
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // Configure multer for handling multipart/form-data from SendGrid inbound parse
 const upload = multer();
 
-// SendGrid Inbound Parse Webhook
-router.post('/sendgrid/inbound', upload.none(), async (req, res) => {
-  try {
-    console.log('[webhook] Received inbound email from SendGrid');
-    
-    // Extract email data from SendGrid inbound parse
-    const emailData = {
-      to: req.body.to,
-      from: req.body.from,
-      subject: req.body.subject,
-      text: req.body.text,
-      html: req.body.html,
-      cc: req.body.cc,
-      attachments: req.body.attachments || 0,
-      spf: req.body.SPF,
-      envelope: JSON.stringify({
-        to: req.body.envelope ? JSON.parse(req.body.envelope).to : [],
-        from: req.body.envelope ? JSON.parse(req.body.envelope).from : req.body.from
-      })
-    };
-
-    console.log(`[webhook] Email from: ${emailData.from}, to: ${emailData.to}, subject: ${emailData.subject}`);
-
-    // Save to database
-    const inboundEmail = new InboundEmail({
-      ...emailData,
-      receivedAt: new Date(),
-      processed: false
-    });
-    await inboundEmail.save();
-
-    // Process different types of emails
-    await processInboundEmail(emailData);
-
-    res.status(200).json({ 
-      ok: true, 
-      message: 'Email processed successfully',
-      emailId: inboundEmail._id 
-    });
-  } catch (error) {
-    console.error('[webhook] Inbound email processing error:', error);
-    res.status(500).json({ ok: false, error: 'Processing failed' });
+// Webhook signature verification middleware
+function verifyWebhookSignature(req, res, next) {
+  const secret = process.env.WEBHOOK_SECRET;
+  if (!secret) {
+    // If no secret configured, log warning but allow (for backward-compat)
+    logger.warn('webhook', 'WEBHOOK_SECRET not configured — skipping signature verification');
+    return next();
   }
-});
+  const signature = req.headers['x-webhook-signature'] || req.headers['x-twilio-email-event-webhook-signature'];
+  if (!signature) {
+    logger.warn('webhook', 'Missing webhook signature header');
+    return res.status(403).json({ error: 'Missing webhook signature' });
+  }
+  // Simple HMAC verification
+  const timestamp = req.headers['x-webhook-timestamp'] || '';
+  const payload = timestamp + JSON.stringify(req.body || '');
+  const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  if (!crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expected, 'hex'))) {
+    logger.warn('webhook', 'Invalid webhook signature');
+    return res.status(403).json({ error: 'Invalid webhook signature' });
+  }
+  next();
+}
+
+// SendGrid Inbound Parse Webhook
+router.post('/sendgrid/inbound', upload.none(), verifyWebhookSignature, asyncHandler(async (req, res) => {
+  logger.info('webhook', 'Received inbound email from SendGrid');
+  
+  // Extract email data from SendGrid inbound parse
+  const emailData = {
+    to: req.body.to,
+    from: req.body.from,
+    subject: req.body.subject,
+    text: req.body.text,
+    html: req.body.html,
+    cc: req.body.cc,
+    attachments: req.body.attachments || 0,
+    spf: req.body.SPF,
+    envelope: JSON.stringify({
+      to: req.body.envelope ? JSON.parse(req.body.envelope).to : [],
+      from: req.body.envelope ? JSON.parse(req.body.envelope).from : req.body.from
+    })
+  };
+
+  logger.info('webhook', `Email from: ${emailData.from}, subject: ${emailData.subject}`);
+
+  // Save to database
+  const inboundEmail = new InboundEmail({
+    ...emailData,
+    receivedAt: new Date(),
+    processed: false
+  });
+  await inboundEmail.save();
+
+  // Process different types of emails
+  await processInboundEmail(emailData);
+
+  res.status(200).json({ 
+    ok: true, 
+    message: 'Email processed successfully',
+    emailId: inboundEmail._id 
+  });
+}));
 
 // Process inbound email based on type and content
 async function processInboundEmail(emailData) {
@@ -60,30 +92,26 @@ async function processInboundEmail(emailData) {
   const emailBody = text || html || '';
   
   try {
-    // Support email auto-reply
     if (to.includes('support@') || to.includes('help@')) {
       await handleSupportEmail(from, subject, emailBody);
     }
     
-    // Newsletter unsubscribe requests
     if (emailBody.toLowerCase().includes('unsubscribe') && 
         (subject.toLowerCase().includes('unsubscribe') || emailBody.toLowerCase().includes('stop'))) {
       await handleUnsubscribeRequest(from);
     }
     
-    // Order inquiries (contains order ID patterns)
     const orderIdMatch = emailBody.match(/order[:\s#]*([a-f0-9]{24})/i);
     if (orderIdMatch) {
       await handleOrderInquiry(from, orderIdMatch[1], emailBody);
     }
     
-    // General contact form submissions
     if (to.includes('contact@') || to.includes('info@')) {
       await handleContactEmail(from, subject, emailBody);
     }
 
   } catch (processError) {
-    console.error('[webhook] Email processing error:', processError);
+    logger.error('webhook', 'Email processing error', { error: processError.message });
   }
 }
 
@@ -99,10 +127,10 @@ async function handleSupportEmail(fromEmail, subject, body) {
       
       <div style="background: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px;">
         <strong>Your Message:</strong><br>
-        ${body.substring(0, 500)}${body.length > 500 ? '...' : ''}
+        ${escapeHtml(body.substring(0, 500))}${body.length > 500 ? '...' : ''}
       </div>
       
-      <p>For urgent matters, please call us at +91-XXXXXXXXXX</p>
+      <p>For urgent matters, please call us at ${escapeHtml(process.env.SUPPORT_PHONE || 'our support line')}</p>
       <p>Thank you for choosing Savatsya Gau Samvardhan!</p>
       
       <hr style="margin: 30px 0;">
@@ -118,13 +146,12 @@ async function handleSupportEmail(fromEmail, subject, body) {
     html: autoReply
   });
 
-  console.log(`[email] Support auto-reply sent to: ${fromEmail}`);
+  logger.info('webhook', `Support auto-reply sent to: ${fromEmail}`);
 }
 
 // Handle newsletter unsubscribe requests
 async function handleUnsubscribeRequest(fromEmail) {
   try {
-    // Import Subscriber model dynamically to avoid circular imports
     const { default: Subscriber } = await import('../models/Subscriber.js');
     
     await Subscriber.findOneAndDelete({ email: fromEmail.toLowerCase() });
@@ -140,16 +167,15 @@ async function handleUnsubscribeRequest(fromEmail) {
       });
     }
     
-    console.log(`[email] Unsubscribed: ${fromEmail}`);
+    logger.info('webhook', `Unsubscribed: ${fromEmail}`);
   } catch (error) {
-    console.error('[email] Unsubscribe error:', error);
+    logger.error('webhook', 'Unsubscribe error', { error: error.message });
   }
 }
 
 // Handle order-related inquiries
 async function handleOrderInquiry(fromEmail, orderId, body) {
   try {
-    // Import Order model dynamically
     const { default: Order } = await import('../models/Order.js');
     
     const order = await Order.findById(orderId);
@@ -181,9 +207,9 @@ async function handleOrderInquiry(fromEmail, orderId, body) {
       }
     }
     
-    console.log(`[email] Order inquiry response sent for: ${orderId}`);
+    logger.info('webhook', `Order inquiry response sent for: ${orderId}`);
   } catch (error) {
-    console.error('[email] Order inquiry error:', error);
+    logger.error('webhook', 'Order inquiry error', { error: error.message });
   }
 }
 
@@ -200,28 +226,26 @@ async function handleContactEmail(fromEmail, subject, body) {
       
       <div style="background: #f9f9f9; padding: 10px; margin: 15px 0;">
         <strong>Your message:</strong><br>
-        ${body.substring(0, 300)}${body.length > 300 ? '...' : ''}
+        ${escapeHtml(body.substring(0, 300))}${body.length > 300 ? '...' : ''}
       </div>
       
       <p>Best regards,<br>Savatsya Gau Samvardhan Team</p>
     `
   });
   
-  console.log(`[email] Contact auto-reply sent to: ${fromEmail}`);
+  logger.info('webhook', `Contact auto-reply sent to: ${fromEmail}`);
 }
 
 // Generic webhook handler (for other services)
 router.post('/incoming', express.raw({ type: '*/*' }), (req, res) => {
-  const signature = req.headers['x-signature'] || req.headers['stripe-signature'];
-
   try {
     let payload = req.body;
     try { payload = JSON.parse(req.body.toString()); } catch (e) {}
-    console.log('Received webhook', { signature, payload: payload && payload.type ? payload.type : 'raw' });
+    logger.info('webhook', 'Received webhook', { type: payload?.type || 'raw' });
    
     res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('Webhook handling error', err);
+    logger.error('webhook', 'Webhook handling error', { error: err.message });
     res.status(400).json({ ok: false, error: 'invalid payload' });
   }
 });

@@ -1,4 +1,5 @@
 import sgMail from '@sendgrid/mail';
+import logger from './logger.js';
 
 let isInitialized = false;
 let initAttempted = false;
@@ -7,22 +8,22 @@ function initMailer() {
   if (initAttempted) return; // Only try to initialize once
   initAttempted = true;
   
-  console.log('[mailer] Initializing SendGrid mailer...');
-  console.log('[mailer] DEBUG - SENDGRID_API_KEY exists:', !!process.env.SENDGRID_API_KEY);
-  console.log('[mailer] DEBUG - SENDGRID_API_KEY length:', process.env.SENDGRID_API_KEY?.length || 0);
-  console.log('[mailer] DEBUG - SENDGRID_API_KEY starts with SG.:', process.env.SENDGRID_API_KEY?.startsWith('SG.') || false);
-  console.log('[mailer] DEBUG - FROM_EMAIL value:', process.env.FROM_EMAIL);
-  console.log('[mailer] DEBUG - FROM_NAME value:', process.env.FROM_NAME);
+  logger.info('mailer', 'Initializing SendGrid mailer...');
+  logger.debug('mailer', 'SendGrid config check', {
+    apiKeyPresent: !!process.env.SENDGRID_API_KEY,
+    apiKeyFormat: process.env.SENDGRID_API_KEY?.startsWith('SG.') || false,
+    fromEmail: process.env.FROM_EMAIL || '(not set)',
+    fromName: process.env.FROM_NAME || '(not set)'
+  });
   
   if (!process.env.SENDGRID_API_KEY) {
-    console.warn('[mailer] SENDGRID_API_KEY not configured. Email functionality disabled.');
+    logger.warn('mailer', 'SENDGRID_API_KEY not configured. Email functionality disabled.');
     return;
   }
 
   // Validate API key format
   if (!process.env.SENDGRID_API_KEY.startsWith('SG.')) {
-    console.error('[mailer] Invalid SENDGRID_API_KEY format. SendGrid API keys should start with "SG."');
-    console.error('[mailer] Current key format appears incorrect. Please check your SendGrid dashboard for the correct API key.');
+    logger.error('mailer', 'Invalid SENDGRID_API_KEY format. Keys should start with "SG."');
     isInitialized = false;
     return;
   }
@@ -30,10 +31,9 @@ function initMailer() {
   try {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     isInitialized = true;
-    console.log('[mailer] ✅ SendGrid Web API initialized successfully');
-    console.log('[mailer] ✅ Email functionality is ENABLED');
+    logger.info('mailer', 'SendGrid Web API initialized successfully. Email functionality is ENABLED.');
   } catch (err) {
-    console.error('[mailer] ❌ Failed to initialize SendGrid:', err?.message || err);
+    logger.error('mailer', 'Failed to initialize SendGrid', { error: err?.message || String(err) });
     isInitialized = false;
   }
 }
@@ -54,7 +54,7 @@ export async function sendEmail({ to, subject, html, text }) {
   }
   
   if (!isInitialized) {
-    console.warn('[mailer] SendGrid not initialized. Skipping email send.');
+    logger.warn('mailer', 'SendGrid not initialized. Skipping email send.');
     return { 
       ok: false, 
       error: 'SendGrid not configured' 
@@ -77,13 +77,13 @@ export async function sendEmail({ to, subject, html, text }) {
 
   try {
     const [response] = await sgMail.send(msg);
-    console.log('[mailer] Email sent successfully to:', to);
+    logger.info('mailer', `Email sent successfully to: ${to}`);
     return { 
       ok: true,
       messageId: response.headers['x-message-id']
     };
   } catch (err) {
-    console.error('[mailer] Send failed:', err?.message || err);
+    logger.error('mailer', 'Send failed', { error: err?.message || String(err) });
     const errorInfo = err.response?.body || err.message;
     return { 
       ok: false,

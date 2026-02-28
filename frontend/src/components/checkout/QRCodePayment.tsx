@@ -12,8 +12,19 @@ interface QRCodePaymentProps {
 const QRCodePayment = ({ amount, onPaymentComplete, onCancel }: QRCodePaymentProps) => {
   const { toast } = useToast();
   
-  // Get UPI ID from environment variable
-  const upiId = import.meta.env.VITE_UPI_ID || '8788277595@axl';
+  // Get UPI ID from environment variable (required, no hardcoded fallback)
+  const upiId = import.meta.env.VITE_UPI_ID;
+  
+  if (!upiId) {
+    return (
+      <div className="flex flex-col items-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-xl font-serif text-red-600 mb-4">Payment Configuration Error</h2>
+        <p className="text-sm text-gray-600 mb-4 text-center">UPI payment is not configured. Please contact support.</p>
+        <Button variant="outline" onClick={onCancel}>Go Back</Button>
+      </div>
+    );
+  }
+
   const upiPaymentLink = `upi://pay?pa=${upiId}&pn=SAVATSYA GAU SAMVARDHAN&am=${amount}&cu=INR&tn=Payment for Savatsya Gau Samvardhan products`;
   
   const handleManualComplete = () => {

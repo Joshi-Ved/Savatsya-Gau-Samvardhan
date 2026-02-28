@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,7 +51,7 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ trigger }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/user/two-factor', {
+      const response = await fetch(API_ENDPOINTS.USER.TWO_FACTOR, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

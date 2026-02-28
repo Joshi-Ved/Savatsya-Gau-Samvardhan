@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { API_ENDPOINTS } from '@/config/api';
@@ -13,6 +13,7 @@ const Login = () => {
   const [name, setName] = useState('');
   const { login, register, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +32,7 @@ const Login = () => {
         await login(normalizedEmail, normalizedPassword);
         toast.success('Successfully logged in!');
 
-        const state = (navigate as any).location?.state as { from?: Location } | undefined;
-        const fromPath = state?.from?.pathname || '/';
+        const fromPath = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
         navigate(fromPath, { replace: true });
       } else {
 

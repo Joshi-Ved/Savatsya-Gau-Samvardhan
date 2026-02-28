@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 
 export interface UserAction {
   id: string;
@@ -147,13 +148,13 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
    
     // Send to backend for real-time admin tracking
     try {
-      fetch('/api/analytics/track', {
+      fetch(API_ENDPOINTS.ANALYTICS.TRACK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           actionType: type,
           payload: data,
-          userId: user?._id || null
+          userId: user?.id || null
         })
       }).catch(() => {}); // Silently fail if backend is unavailable
     } catch (error) {

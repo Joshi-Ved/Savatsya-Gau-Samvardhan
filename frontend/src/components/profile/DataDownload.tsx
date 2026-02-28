@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Download, FileText, AlertCircle } from 'lucide-react';
@@ -19,7 +20,7 @@ const DataDownload: React.FC<DataDownloadProps> = ({ trigger }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/user/download-data', {
+      const response = await fetch(API_ENDPOINTS.USER.DOWNLOAD_DATA, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`

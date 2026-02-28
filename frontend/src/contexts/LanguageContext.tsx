@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_ENDPOINTS } from '../config/api';
 
 export type Language = 'en' | 'hi' | 'mr';
 export type Currency = 'INR' | 'USD' | 'EUR';
@@ -16,7 +17,8 @@ interface Translations {
     [lang in Language]: string;
   };
 }
-
+
+
 const translations: Translations = {
   welcome: {
     en: 'Welcome',
@@ -274,7 +276,8 @@ const translations: Translations = {
     mr: 'डाउनलोड करा'
   }
 };
-
+
+
 const currencyConfig = {
   INR: { symbol: '₹', code: 'INR', name: 'Indian Rupee' },
   USD: { symbol: '$', code: 'USD', name: 'US Dollar' },
@@ -331,7 +334,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
    
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/user/preferences', {
+      fetch(API_ENDPOINTS.USER.PREFERENCES, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json', 
@@ -352,7 +355,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
    
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/user/preferences', {
+      fetch(API_ENDPOINTS.USER.PREFERENCES, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json', 

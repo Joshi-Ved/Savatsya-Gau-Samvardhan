@@ -72,26 +72,55 @@ if (isLocalhost) {
       return;
     }
 
+    // Never cache API requests — always use network-first
+    if (event.request.url.includes('/api/')) {
+      event.respondWith(
+        fetch(event.request).catch(() => {
+          return new Response(JSON.stringify({ error: 'Offline' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        })
+      );
+      return;
+    }
+
+    // SPA navigation requests — always serve index.html (network-first, fallback to cache)
+    if (event.request.mode === 'navigate') {
+      event.respondWith(
+        fetch(event.request)
+          .then((response) => {
+            // Cache the latest index.html
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put('/index.html', responseToCache);
+            });
+            return response;
+          })
+          .catch(() => {
+            // Offline — serve cached index.html so client-side routing works
+            return caches.match('/index.html')
+              .then((cached) => cached || caches.match('/offline.html'));
+          })
+      );
+      return;
+    }
+
+    // Static assets — cache-first
     event.respondWith(
       caches.match(event.request)
         .then((response) => {
-          // Return cached response if found
           if (response) {
             return response;
           }
 
-          // Otherwise fetch from network
           return fetch(event.request)
             .then((response) => {
-              // Don't cache non-successful responses
               if (!response || response.status !== 200 || response.type !== 'basic') {
                 return response;
               }
 
-              // Clone the response
               const responseToCache = response.clone();
-
-              // Cache the fetched response
               caches.open(CACHE_NAME)
                 .then((cache) => {
                   cache.put(event.request, responseToCache);
@@ -100,7 +129,6 @@ if (isLocalhost) {
               return response;
             })
             .catch(() => {
-              // Return offline page if available
               return caches.match('/offline.html');
             });
         })

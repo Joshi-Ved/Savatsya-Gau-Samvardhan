@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { API_ENDPOINTS } from '../config/api';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ColorScheme = 'default' | 'warm' | 'cool' | 'vintage';
@@ -83,7 +84,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     setConfig(prev => ({ ...prev, colorScheme }));
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/user/preferences', {
+      fetch(API_ENDPOINTS.USER.PREFERENCES, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ uiConfig: { colorScheme } })
@@ -95,7 +96,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     setConfig(prev => ({ ...prev, fontSize }));
     const token = localStorage.getItem('token');
     if (token) {
-      fetch('/api/user/preferences', {
+      fetch(API_ENDPOINTS.USER.PREFERENCES, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ uiConfig: { fontSize } })
@@ -109,7 +110,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const next = { ...prev, animations };
       const token = localStorage.getItem('token');
       if (token) {
-        fetch('/api/user/preferences', {
+        fetch(API_ENDPOINTS.USER.PREFERENCES, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ uiConfig: { animations } })
@@ -125,7 +126,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const next = { ...prev, highContrast };
       const token = localStorage.getItem('token');
       if (token) {
-        fetch('/api/user/preferences', {
+        fetch(API_ENDPOINTS.USER.PREFERENCES, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ uiConfig: { highContrast } })
@@ -141,7 +142,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       const next = { ...prev, reduceMotion };
       const token = localStorage.getItem('token');
       if (token) {
-        fetch('/api/user/preferences', {
+        fetch(API_ENDPOINTS.USER.PREFERENCES, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ uiConfig: { reduceMotion } })

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { API_ENDPOINTS } from '@/config/api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,11 +62,9 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ trigger }) => {
     if (!validateForm()) return;
 
     setLoading(true);
-    console.log('Attempting to change password...');
     
     try {
       const token = localStorage.getItem('token');
-      console.log('Token available:', !!token);
       
       if (!token) {
         toast({
@@ -76,8 +75,7 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ trigger }) => {
         return;
       }
       
-      console.log('Making API call to /api/user/change-password');
-      const response = await fetch('/api/user/change-password', {
+      const response = await fetch(API_ENDPOINTS.USER.CHANGE_PASSWORD, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

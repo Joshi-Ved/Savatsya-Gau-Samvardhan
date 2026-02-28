@@ -1,4 +1,5 @@
 import { verifyToken } from '../utils/auth.js';
+import logger from '../utils/logger.js';
 
 export function authenticateJWT(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -9,7 +10,7 @@ export function authenticateJWT(req, res, next) {
     req.user = payload;
     return next();
   } catch (err) {
-    console.error('JWT verification failed:', err?.message || err);
+    logger.warn('auth', 'JWT verification failed', { error: err?.message || String(err) });
     return res.status(401).json({ error: 'Invalid token' });
   }
 }

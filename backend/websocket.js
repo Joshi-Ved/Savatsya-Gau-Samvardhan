@@ -1,5 +1,6 @@
 import WebSocket, { WebSocketServer } from 'ws';
-
+
+
 export function attachWebsocket(server, options = {}) {
   const wss = new WebSocketServer({ server, path: options.path || '/ws' });
 
@@ -17,7 +18,10 @@ export function attachWebsocket(server, options = {}) {
           ws.send(JSON.stringify({ type: 'pong' }));
         }
       } catch (e) {
-        
+        // Log parse errors instead of silently swallowing
+        if (typeof console !== 'undefined') {
+          console.warn('[websocket] Message parse error:', e?.message);
+        }
       }
     });
   });

@@ -1,3 +1,5 @@
+import logger from '../utils/logger.js';
+
 /**
  * Global Error Handler Middleware
  * Catches all unhandled errors and returns a consistent JSON response.
@@ -9,10 +11,10 @@ export function globalErrorHandler(err, req, res, _next) {
   const statusCode = err.statusCode || 500;
   const message = err.isOperational ? err.message : 'Internal server error';
 
-  // Log the error (full details server-side only)
-  console.error(`[error] ${req.method} ${req.originalUrl} — ${statusCode}:`, err.message);
+  // Log the error using structured logger
+  logger.error('http', `${req.method} ${req.originalUrl} — ${statusCode}: ${err.message}`);
   if (statusCode === 500) {
-    console.error(err.stack);
+    logger.error('http', err.stack);
   }
 
   res.status(statusCode).json({

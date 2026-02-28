@@ -32,7 +32,7 @@ const Dashboard = () => {
     const fetchStats = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${API_ENDPOINTS.ANALYTICS}/dashboard`, {
+            const response = await fetch(API_ENDPOINTS.ANALYTICS.DASHBOARD, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
