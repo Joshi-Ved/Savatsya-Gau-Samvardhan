@@ -17,4 +17,3 @@ backend/Dockerfile
 frontend/Dockerfile
 backend/
 devops/
-tools/
