@@ -19,13 +19,16 @@ const DataDownload: React.FC<DataDownloadProps> = ({ trigger }) => {
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
+      if (token) {
       const response = await fetch(API_ENDPOINTS.USER.DOWNLOAD_DATA, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
+      }
 
       if (response.ok) {
         const blob = await response.blob();

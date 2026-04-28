@@ -41,10 +41,11 @@ const ProductList = () => {
 
     const fetchProducts = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_ENDPOINTS.PRODUCTS}/admin`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const { getAccessToken } = await import('@/lib/authToken');
+            const token = getAccessToken();
+            const headers: Record<string,string> = {};
+            if (token) headers.Authorization = `Bearer ${token}`;
+            const response = await fetch(`${API_ENDPOINTS.PRODUCTS}/admin`, { headers });
 
             if (response.ok) {
                 const data = await response.json();
@@ -62,11 +63,11 @@ const ProductList = () => {
         if (!confirm('Are you sure you want to deactivate this product?')) return;
 
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_ENDPOINTS.PRODUCTS}/${id}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const { getAccessToken } = await import('@/lib/authToken');
+            const token = getAccessToken();
+            const headers: Record<string,string> = {};
+            if (token) headers.Authorization = `Bearer ${token}`;
+            const response = await fetch(`${API_ENDPOINTS.PRODUCTS}/${id}`, { method: 'DELETE', headers });
 
             if (response.ok) {
                 toast.success('Product deactivated');

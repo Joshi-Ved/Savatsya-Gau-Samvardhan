@@ -68,6 +68,8 @@ const userSchema = new mongoose.Schema({
   passwordResetToken: { type: String },
   passwordResetExpires: { type: Date },
   passwordChangedAt: Date,
+  // Refresh tokens for cookie-based auth (store tokenId for rotation/revocation)
+  refreshTokens: [{ tokenId: String, createdAt: Date }],
   twoFactorAuth: { type: twoFactorAuthSchema, default: () => ({}) },
   isActive: { type: Boolean, default: true },
   deletionScheduled: deletionScheduleSchema,

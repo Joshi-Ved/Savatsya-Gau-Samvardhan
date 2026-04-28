@@ -27,14 +27,11 @@ const Profile = () => {
 
   const fetchOrderCount = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
       if (!token) return;
 
-      const response = await fetch(API_ENDPOINTS.ORDERS, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(API_ENDPOINTS.ORDERS, { headers: { 'Authorization': `Bearer ${token}` } });
 
       if (response.ok) {
         const orders = await response.json();

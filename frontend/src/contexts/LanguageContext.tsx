@@ -332,20 +332,17 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setConfig(newConfig);
     
    
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch(API_ENDPOINTS.USER.PREFERENCES, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json', 
-          Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify({ 
-          preferences: { language },
-          uiConfig: { language }
-        })
-      }).catch(() => {});
-    }
+    try {
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
+      if (token) {
+        fetch(API_ENDPOINTS.USER.PREFERENCES, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ preferences: { language }, uiConfig: { language } })
+        }).catch(() => {});
+      }
+    } catch (_) {}
   };
 
   const setCurrency = (currency: Currency) => {
@@ -353,20 +350,17 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setConfig(newConfig);
     
    
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch(API_ENDPOINTS.USER.PREFERENCES, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json', 
-          Authorization: `Bearer ${token}` 
-        },
-        body: JSON.stringify({ 
-          preferences: { currency },
-          uiConfig: { currency }
-        })
-      }).catch(() => {});
-    }
+    try {
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
+      if (token) {
+        fetch(API_ENDPOINTS.USER.PREFERENCES, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ preferences: { currency }, uiConfig: { currency } })
+        }).catch(() => {});
+      }
+    } catch (_) {}
   };
 
   const t = (key: string): string => {

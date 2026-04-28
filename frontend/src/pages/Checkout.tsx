@@ -12,7 +12,7 @@ import AnimatedPage from '@/components/ui/AnimatedPage';
 
 const Checkout = () => {
     const { items, totalPrice, clearCart } = useCart();
-    const { user, isAuthenticated } = useAuth();
+    const { user, isAuthenticated, accessToken } = useAuth();
     const navigate = useNavigate();
 
     const [step, setStep] = useState<'address' | 'payment'>('address');
@@ -50,7 +50,7 @@ const Checkout = () => {
                 price: item.product.price
             }));
 
-            const token = localStorage.getItem('token');
+            const token = accessToken;
             const response = await fetch(API_ENDPOINTS.ORDERS, {
                 method: 'POST',
                 headers: {

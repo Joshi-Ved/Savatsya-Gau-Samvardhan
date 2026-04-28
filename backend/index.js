@@ -6,6 +6,7 @@ import express from "express";
 import http from 'http';
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from 'cookie-parser';
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import mongoose from "mongoose";
@@ -82,6 +83,7 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' }));
+app.use(cookieParser());
 app.use(mongoSanitize());
 
 // Simple request logging middleware

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { API_ENDPOINTS } from '@/config/api';
+import { setAccessToken as setToken, clearAccessToken as clearToken } from '@/lib/authToken';
 
 export interface TwoFactorAuth {
   enabled: boolean;
@@ -48,6 +49,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   isLoading: boolean;
   serverError?: boolean;
+  accessToken?: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: Partial<User>, password: string) => Promise<void>;
   logout: () => void;
@@ -63,8 +65,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  // Initialize loading state based on token presence to prevent race conditions
-  const [isLoading, setIsLoading] = useState(() => !!localStorage.getItem('token'));
+  // Initialize loading state; we'll attempt silent refresh on mount
+  const [isLoading, setIsLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [serverError, setServerError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -72,43 +75,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const checkAuth = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      setIsLoading(false);
-      return;
-    }
-
+    setIsLoading(true);
     try {
-      const res = await fetch(API_ENDPOINTS.USER.ME, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (res.status === 401) {
-        // Invalid token - actually logout
-        console.warn('Token expired or invalid, logging out');
-        setUser(null);
-        localStorage.removeItem('token');
-        setIsLoading(false);
-        return;
-      }
+      // Attempt silent refresh using HttpOnly cookie
+      const res = await fetch(API_ENDPOINTS.AUTH.REFRESH, { method: 'POST', credentials: 'include' });
 
       if (!res.ok) {
-        // Server error but not auth error - keep token but show error
-        console.error('Server error during auth check:', res.status);
-        setServerError(true);
-        // Don't remove token for 500s or network errors
+        setUser(null);
+        setAccessToken(null);
         setIsLoading(false);
         return;
       }
 
       const data = await res.json();
-      setServerError(false);
-
-      if (data && data.email) {
+      if (data && data.accessToken) {
+        setAccessToken(data.accessToken);
+        setToken(data.accessToken);
+        // Optionally set user from payload
         setUser({
           id: data.userId || '',
-          name: data.name || data.email.split('@')[0] || 'User',
-          email: data.email,
+          name: data.name || data.email?.split('@')[0] || 'User',
+          email: data.email || '',
           phone: data.phone || '',
           profilePicture: data.profilePicture || '',
           preferences: data.preferences || {
@@ -122,13 +109,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
       } else {
         setUser(null);
-        localStorage.removeItem('token');
+        setAccessToken(null);
       }
     } catch (error) {
       console.error('Network error during auth check:', error);
-      // Network error - assume server is down but don't logout user yet
       setServerError(true);
-      // e.g. toast.error("Cannot connect to server");
     } finally {
       setIsLoading(false);
     }
@@ -146,13 +131,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
+      // Server sets HttpOnly refresh cookie and returns accessToken
+      if (data.accessToken) { setAccessToken(data.accessToken); setToken(data.accessToken); }
 
-      localStorage.setItem('token', data.token);
-
-      // Fetch user profile immediately
+      // Fetch user profile immediately using access token
       try {
         const meRes = await fetch(API_ENDPOINTS.USER.ME, {
-          headers: { Authorization: `Bearer ${data.token}` }
+          headers: { Authorization: `Bearer ${data.accessToken}` }
         });
 
         if (meRes.ok) {
@@ -175,22 +160,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.warn('Failed to fetch full profile after login:', err);
-        // Fallback to basic data
-        setUser({
-          id: data.userId || '',
-          name: data.name || email.split('@')[0] || 'User',
-          email,
-          phone: data.phone || '',
-          profilePicture: data.profilePicture || '',
-          preferences: data.preferences || {
-            theme: 'light',
-            language: 'en',
-            currency: 'INR',
-            notifications: { email: true, sms: true, push: true }
-          },
-          address: data.address || [],
-          isAdmin: data.isAdmin || false,
-        });
       }
     } catch (err) {
       throw err;
@@ -212,36 +181,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    const token = localStorage.getItem('token');
-
-    // Call backend logout endpoint if token exists
-    if (token) {
-      try {
-        await fetch(API_ENDPOINTS.AUTH.LOGOUT, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      } catch (error) {
-        console.error('Logout API call failed:', error);
-        // Continue with local logout even if API fails
-      }
+    try {
+      // Server will clear refresh cookie and revoke token
+      await fetch(API_ENDPOINTS.AUTH.LOGOUT, { method: 'POST', credentials: 'include' });
+    } catch (error) {
+      console.error('Logout API call failed:', error);
     }
 
-    // Always clear local state and token
+    // Always clear local state and access token
     setUser(null);
-    localStorage.removeItem('token');
+    setAccessToken(null);
+    clearToken();
   };
 
   const updatePreferences = (prefs: UserPreferences) => {
     setUser(prev => prev ? { ...prev, preferences: prefs } : prev);
-    const token = localStorage.getItem('token');
-    if (token) {
+    if (accessToken) {
       fetch(API_ENDPOINTS.USER.PREFERENCES, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({ preferences: prefs })
       }).catch((err) => {
         console.warn('Failed to sync preferences:', err.message);
@@ -250,16 +208,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateUser = async (updates: Partial<Pick<User, 'name' | 'email' | 'phone' | 'profilePicture'>>) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
+    if (!accessToken) throw new Error('No authentication token found');
 
     const response = await fetch(API_ENDPOINTS.USER.PROFILE, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${accessToken}`
       },
       body: JSON.stringify(updates)
     });
@@ -284,11 +239,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       addresses.push(newAddress);
       return { ...prev, address: addresses };
     });
-    const token = localStorage.getItem('token');
-    if (token) {
+    if (accessToken) {
       fetch(API_ENDPOINTS.USER.ADDRESSES, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({ id: `addr_${Date.now()}`, ...address })
       }).catch((err) => {
         console.warn('Failed to sync new address:', err.message);
@@ -308,11 +262,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       return { ...prev, address: addresses };
     });
-    const token = localStorage.getItem('token');
-    if (token) {
+    if (accessToken) {
       fetch(API_ENDPOINTS.USER.ADDRESS(id), {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify(updates)
       }).catch((err) => {
         console.warn('Failed to sync address update:', err.message);
@@ -322,11 +275,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteAddress = (id: string) => {
     setUser(prev => prev ? { ...prev, address: (prev.address || []).filter(a => a.id !== id) } : prev);
-    const token = localStorage.getItem('token');
-    if (token) {
+    if (accessToken) {
       fetch(API_ENDPOINTS.USER.ADDRESS(id), {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${accessToken}` }
       }).catch((err) => {
         console.warn('Failed to sync address deletion:', err.message);
       });
@@ -339,6 +291,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isAuthenticated: !!user,
       isLoading,
       serverError,
+      accessToken,
       login,
       register,
       logout,

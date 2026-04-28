@@ -14,7 +14,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { user, isAuthenticated } = useAuth(); // Assuming AuthContext provides these
+    const { user, isAuthenticated, accessToken } = useAuth(); // use accessToken from AuthContext
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,7 +40,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ productId, onReviewSubmitted })
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming token is here
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({ rating, comment })
             });

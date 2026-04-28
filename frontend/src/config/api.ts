@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
     CHECK_EMAIL: (email: string) => `${API_BASE_URL}/api/auth/check-email/${email}`,
     FORGOT_PASSWORD: `${API_BASE_URL}/api/auth/forgot-password`,
     RESET_PASSWORD: `${API_BASE_URL}/api/auth/reset-password`,
+    REFRESH: `${API_BASE_URL}/api/auth/refresh`,
   },
   USER: {
     ME: `${API_BASE_URL}/api/user/me`,

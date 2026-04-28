@@ -82,40 +82,55 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   const setColorScheme = (colorScheme: ColorScheme) => {
     setConfig(prev => ({ ...prev, colorScheme }));
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch(API_ENDPOINTS.USER.PREFERENCES, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ uiConfig: { colorScheme } })
-      }).catch(() => {});
-    }
+    (async () => {
+      try {
+        const { getAccessToken } = await import('@/lib/authToken');
+        const token = getAccessToken();
+        if (token) {
+          fetch(API_ENDPOINTS.USER.PREFERENCES, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ uiConfig: { colorScheme } })
+          }).catch(() => {});
+        }
+      } catch (_) {}
+    })();
   };
 
   const setFontSize = (fontSize: 'small' | 'medium' | 'large') => {
     setConfig(prev => ({ ...prev, fontSize }));
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetch(API_ENDPOINTS.USER.PREFERENCES, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ uiConfig: { fontSize } })
-      }).catch(() => {});
-    }
+    (async () => {
+      try {
+        const { getAccessToken } = await import('@/lib/authToken');
+        const token = getAccessToken();
+        if (token) {
+          fetch(API_ENDPOINTS.USER.PREFERENCES, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ uiConfig: { fontSize } })
+          }).catch(() => {});
+        }
+      } catch (_) {}
+    })();
   };
 
   const toggleAnimations = (value?: boolean) => {
     setConfig(prev => {
       const animations = typeof value === 'boolean' ? value : !prev.animations;
       const next = { ...prev, animations };
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetch(API_ENDPOINTS.USER.PREFERENCES, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ uiConfig: { animations } })
-        }).catch(() => {});
-      }
+      (async () => {
+        try {
+          const { getAccessToken } = await import('@/lib/authToken');
+          const token = getAccessToken();
+          if (token) {
+            fetch(API_ENDPOINTS.USER.PREFERENCES, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ uiConfig: { animations } })
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      })();
       return next;
     });
   };
@@ -124,14 +139,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     setConfig(prev => {
       const highContrast = typeof value === 'boolean' ? value : !prev.highContrast;
       const next = { ...prev, highContrast };
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetch(API_ENDPOINTS.USER.PREFERENCES, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ uiConfig: { highContrast } })
-        }).catch(() => {});
-      }
+      (async () => {
+        try {
+          const { getAccessToken } = await import('@/lib/authToken');
+          const token = getAccessToken();
+          if (token) {
+            fetch(API_ENDPOINTS.USER.PREFERENCES, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ uiConfig: { highContrast } })
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      })();
       return next;
     });
   };
@@ -140,14 +160,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     setConfig(prev => {
       const reduceMotion = typeof value === 'boolean' ? value : !prev.reduceMotion;
       const next = { ...prev, reduceMotion };
-      const token = localStorage.getItem('token');
-      if (token) {
-        fetch(API_ENDPOINTS.USER.PREFERENCES, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ uiConfig: { reduceMotion } })
-        }).catch(() => {});
-      }
+      (async () => {
+        try {
+          const { getAccessToken } = await import('@/lib/authToken');
+          const token = getAccessToken();
+          if (token) {
+            fetch(API_ENDPOINTS.USER.PREFERENCES, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ uiConfig: { reduceMotion } })
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      })();
       return next;
     });
   };

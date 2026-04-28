@@ -71,19 +71,19 @@ const ProductForm = () => {
     const onSubmit = async (data: ProductFormData) => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
+            const { getAccessToken } = await import('@/lib/authToken');
+            const token = getAccessToken();
             const url = isEditMode
                 ? `${API_ENDPOINTS.PRODUCTS}/${id}`
                 : API_ENDPOINTS.PRODUCTS;
 
             const method = isEditMode ? 'PUT' : 'POST';
 
+            const headers: Record<string,string> = { 'Content-Type': 'application/json' };
+            if (token) headers.Authorization = `Bearer ${token}`;
             const response = await fetch(url, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers,
                 body: JSON.stringify(data)
             });
 

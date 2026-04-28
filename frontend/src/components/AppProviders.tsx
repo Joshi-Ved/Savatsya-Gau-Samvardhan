@@ -26,8 +26,8 @@ const AppProviders = ({ children }: AppProvidersProps) => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <LanguageProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <LanguageProvider>
             <AnalyticsProvider>
               <CartProvider>
                 <WishlistProvider>

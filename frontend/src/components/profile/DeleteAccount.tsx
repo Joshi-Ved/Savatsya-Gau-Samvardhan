@@ -60,13 +60,13 @@ const DeleteAccount: React.FC<DeleteAccountProps> = ({ trigger }) => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch(API_ENDPOINTS.USER.DELETE_ACCOUNT, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify({
           password: formData.password,
           confirmation: formData.confirmation

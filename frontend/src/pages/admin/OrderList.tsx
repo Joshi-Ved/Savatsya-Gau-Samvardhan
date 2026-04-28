@@ -42,10 +42,11 @@ const OrderList = () => {
 
     const fetchOrders = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_ENDPOINTS.ORDERS}/all`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const { getAccessToken } = await import('@/lib/authToken');
+            const token = getAccessToken();
+            const headers: Record<string,string> = {};
+            if (token) headers.Authorization = `Bearer ${token}`;
+            const response = await fetch(`${API_ENDPOINTS.ORDERS}/all`, { headers });
 
             if (response.ok) {
                 const data = await response.json();

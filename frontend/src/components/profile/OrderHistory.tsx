@@ -42,7 +42,8 @@ const OrderHistory = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
 
       if (!token) {
         throw new Error('No authentication token found');

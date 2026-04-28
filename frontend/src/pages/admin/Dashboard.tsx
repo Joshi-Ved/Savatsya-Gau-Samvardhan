@@ -31,10 +31,11 @@ const Dashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(API_ENDPOINTS.ANALYTICS.DASHBOARD, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+                const { getAccessToken } = await import('@/lib/authToken');
+                const token = getAccessToken();
+                const headers: Record<string,string> = {};
+                if (token) headers.Authorization = `Bearer ${token}`;
+                const response = await fetch(API_ENDPOINTS.ANALYTICS.DASHBOARD, { headers });
 
             if (response.ok) {
                 const data = await response.json();

@@ -32,10 +32,11 @@ const UserList = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${API_ENDPOINTS.USER.ME.replace('/me', '/all')}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+                const { getAccessToken } = await import('@/lib/authToken');
+                const token = getAccessToken();
+                const headers: Record<string,string> = {};
+                if (token) headers.Authorization = `Bearer ${token}`;
+                const response = await fetch(`${API_ENDPOINTS.USER.ME.replace('/me', '/all')}`, { headers });
 
             if (response.ok) {
                 const data = await response.json();

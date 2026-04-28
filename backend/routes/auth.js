@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { z } from 'zod';
 import User from '../models/User.js';
-import { signToken, hashPassword, comparePassword, verifyToken } from '../utils/auth.js';
+import { signToken, hashPassword, comparePassword, verifyToken, generateAuthTokens, verifyRefreshToken } from '../utils/auth.js';
 import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordResetConfirmationEmail } from '../utils/emailTemplates.js';
 import { validate } from '../middleware/validate.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
@@ -69,9 +69,24 @@ router.post('/login', validate(loginSchema), asyncHandler(async (req, res) => {
   }
 
   const isAdmin = user.isAdmin || false;
-  const token = signToken({ userId: user._id, email: user.email, isAdmin });
+  // Generate access + refresh tokens
+  const { accessToken, refreshToken, tokenId } = generateAuthTokens(String(user._id), { accessExpires: '20m', refreshExpires: '30d', isAdmin });
+
+  // Persist refresh token id on user for rotation/revocation
+  user.refreshTokens = user.refreshTokens || [];
+  user.refreshTokens.push({ tokenId, createdAt: new Date() });
+  await user.save();
+
+  // Set HttpOnly secure cookie for refresh token
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  });
+
   logger.info('auth', 'User logged in', { email: user.email });
-  return res.json({ token, email: user.email, userId: user._id, isAdmin });
+  return res.json({ accessToken, email: user.email, userId: user._id, isAdmin });
 }));
 
 // Check if email exists (for testing) - DISABLED FOR SECURITY
@@ -118,8 +133,63 @@ router.get('/me', asyncHandler(async (req, res) => {
   return res.json({ email: user.email, userId: user._id, address: user.address || [], preferences: {} });
 }));
 
-// Logout endpoint (client-side token removal, server-side logging)
+// Refresh endpoint — rotates refresh token and issues new access token
+router.post('/refresh', asyncHandler(async (req, res) => {
+  logger.info('auth', 'Refresh called', { headersCookie: req.headers.cookie, parsedCookies: req.cookies });
+  const { refreshToken } = req.cookies || {};
+  if (!refreshToken) return res.status(401).json({ error: 'No refresh token' });
+
+  let payload;
+  try {
+    payload = verifyRefreshToken(refreshToken);
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid refresh token' });
+  }
+
+  const { userId, tokenId } = payload;
+  const user = await User.findById(userId);
+  if (!user) return res.status(401).json({ error: 'Invalid refresh token user' });
+
+  // Check tokenId exists on user
+  const found = (user.refreshTokens || []).find(rt => rt.tokenId === tokenId);
+  if (!found) return res.status(401).json({ error: 'Refresh token not recognized' });
+
+  // Rotate: remove old tokenId, add a new one
+  const { accessToken, refreshToken: newRefreshToken, tokenId: newTokenId } = generateAuthTokens(String(user._id), { accessExpires: '20m', refreshExpires: '30d', isAdmin: user.isAdmin });
+  user.refreshTokens = (user.refreshTokens || []).filter(rt => rt.tokenId !== tokenId);
+  user.refreshTokens.push({ tokenId: newTokenId, createdAt: new Date() });
+  await user.save();
+
+  // Set new cookie
+  res.cookie('refreshToken', newRefreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  });
+
+  return res.json({ accessToken, userId: user._id, email: user.email, isAdmin: user.isAdmin });
+}));
+
+// Logout endpoint: clear refresh token cookie and remove tokenId from DB if present
 router.post('/logout', asyncHandler(async (req, res) => {
+  const { refreshToken } = req.cookies || {};
+  if (refreshToken) {
+    try {
+      const payload = verifyRefreshToken(refreshToken);
+      const { userId, tokenId } = payload;
+      const user = await User.findById(userId);
+      if (user) {
+        user.refreshTokens = (user.refreshTokens || []).filter(rt => rt.tokenId !== tokenId);
+        await user.save();
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // Clear cookie
+  res.clearCookie('refreshToken');
   return res.json({ ok: true, message: 'Logged out successfully' });
 }));
 

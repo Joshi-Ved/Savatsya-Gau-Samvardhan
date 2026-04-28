@@ -64,7 +64,8 @@ const ChangePassword: React.FC<ChangePasswordProps> = ({ trigger }) => {
     setLoading(true);
     
     try {
-      const token = localStorage.getItem('token');
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
       
       if (!token) {
         toast({

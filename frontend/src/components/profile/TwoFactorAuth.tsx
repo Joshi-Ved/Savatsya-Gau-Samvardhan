@@ -50,13 +50,13 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ trigger }) => {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const { getAccessToken } = await import('@/lib/authToken');
+      const token = getAccessToken();
+      const headers: Record<string,string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
       const response = await fetch(API_ENDPOINTS.USER.TWO_FACTOR, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify({ 
           enable: enable, 
           method: enable ? method : undefined,
