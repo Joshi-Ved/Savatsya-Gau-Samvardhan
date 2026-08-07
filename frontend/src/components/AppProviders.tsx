@@ -40,8 +40,8 @@ const AppProviders = ({ children }: AppProvidersProps) => (
                 </WishlistProvider>
               </CartProvider>
             </AnalyticsProvider>
-          </AuthProvider>
-        </LanguageProvider>
+          </LanguageProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>

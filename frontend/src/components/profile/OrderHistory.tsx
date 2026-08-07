@@ -60,7 +60,9 @@ const OrderHistory = () => {
       }
 
       const ordersData = await response.json();
-      setOrders(ordersData);
+      // Backend returns { orders: [...], pagination: {...} }
+      const ordersList = Array.isArray(ordersData) ? ordersData : (ordersData.orders || []);
+      setOrders(ordersList);
       setError(null);
     } catch (err) {
       console.error('Error fetching orders:', err);
