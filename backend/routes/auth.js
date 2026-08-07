@@ -156,9 +156,10 @@ router.post('/refresh', asyncHandler(async (req, res) => {
 
   // Rotate: remove old tokenId, add a new one
   const { accessToken, refreshToken: newRefreshToken, tokenId: newTokenId } = generateAuthTokens(String(user._id), { accessExpires: '20m', refreshExpires: '30d', isAdmin: user.isAdmin });
-  user.refreshTokens = (user.refreshTokens || []).filter(rt => rt.tokenId !== tokenId);
-  user.refreshTokens.push({ tokenId: newTokenId, createdAt: new Date() });
-  await user.save();
+  
+  // Use atomic updates to prevent VersionError during concurrent requests
+  await User.updateOne({ _id: user._id }, { $pull: { refreshTokens: { tokenId } } });
+  await User.updateOne({ _id: user._id }, { $push: { refreshTokens: { tokenId: newTokenId, createdAt: new Date() } } });
 
   // Set new cookie
   res.cookie('refreshToken', newRefreshToken, {

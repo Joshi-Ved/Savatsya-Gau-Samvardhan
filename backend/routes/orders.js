@@ -8,6 +8,7 @@ import { validate } from '../middleware/validate.js';
 import { sendEmail, isEmailEnabled } from '../utils/mailer.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -49,17 +50,34 @@ router.post('/', authenticateJWT, validate(createOrderSchema), asyncHandler(asyn
 
   // --- Server-side total calculation ---
   const productIds = items.map(i => i.productId);
-  const products = await Product.find({ _id: { $in: productIds }, isActive: true });
+  
+  // Separate valid ObjectIds from slugs (mock frontend IDs)
+  const objectIds = productIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+  const slugs = productIds.filter(id => !mongoose.Types.ObjectId.isValid(id));
+
+  const queryOr = [];
+  if (objectIds.length > 0) queryOr.push({ _id: { $in: objectIds } });
+  if (slugs.length > 0) queryOr.push({ slug: { $in: slugs } });
+
+  if (queryOr.length === 0) {
+    return res.status(400).json({ error: 'No valid products provided' });
+  }
+
+  const products = await Product.find({ 
+    $or: queryOr,
+    isActive: true 
+  });
 
   if (products.length !== items.length) {
     const foundIds = products.map(p => p._id.toString());
-    const missing = productIds.filter(id => !foundIds.includes(id));
+    const foundSlugs = products.map(p => p.slug);
+    const missing = productIds.filter(id => !foundIds.includes(id) && !foundSlugs.includes(id));
     return res.status(400).json({ error: 'Some products not found or inactive', missingProductIds: missing });
   }
 
   let calculatedTotal = 0;
   const verifiedItems = items.map(item => {
-    const product = products.find(p => p._id.toString() === item.productId);
+    const product = products.find(p => p._id.toString() === item.productId || p.slug === item.productId);
     const lineTotal = product.price * item.quantity;
     calculatedTotal += lineTotal;
     return {
