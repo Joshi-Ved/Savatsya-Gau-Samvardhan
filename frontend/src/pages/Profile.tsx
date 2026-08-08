@@ -245,7 +245,7 @@ const Profile = () => {
                     </Button>
                     <Button
                       variant="outline"
-                      className="h-20 flex flex-col items-center justify-center space-y-2 text-red-600 hover:text-red-700"
+                      className="h-20 flex flex-col items-center justify-center space-y-2 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                       onClick={logout}
                     >
                       <User className="h-6 w-6" />
