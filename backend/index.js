@@ -44,6 +44,7 @@ const envOrigins = process.env.CORS_ORIGINS
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://savatsya-gau-samvardhan.vercel.app/',
   process.env.FRONTEND_URL,
   ...envOrigins,
 ].filter(Boolean);
