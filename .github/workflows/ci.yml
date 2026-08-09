@@ -8,17 +8,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [frontend, backend]
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: Install deps and build (${{ matrix.service }})
-        working-directory: ${{ matrix.service == 'frontend' && 'frontend' || 'backend' }}
-        run: |
-          npm ci
-          npm run build || true
+
+      # Install using your ROOT package-lo=ck.json
+      - name: Install dependencies
+        run: npm ci
+
+      # Build Frontend
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build || true
+
+      # Build Backend
+      - name: Build Backend
+        working-directory: ./backend
+        run: npm run build || true
