@@ -1,4 +1,5 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:5000';
+const rawUrl = (import.meta.env.VITE_API_URL as string | undefined) || 'https://savatsya-gau-samvardhan-backend.onrender.com';
+const API_BASE_URL = rawUrl.replace(/\/+$/, '');
 
 export const API_ENDPOINTS = {
   AUTH: {

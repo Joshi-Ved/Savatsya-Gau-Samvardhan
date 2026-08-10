@@ -41,13 +41,16 @@ const envOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',')
   : [];
 
+// Clean and normalize origins (removing trailing slashes)
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://savatsya-gau-samvardhan.vercel.app/',
+  'https://savatsya-gau-samvardhan.vercel.app', // Fixed: Removed trailing slash
   process.env.FRONTEND_URL,
   ...envOrigins,
-].filter(Boolean);
+]
+  .filter(Boolean)
+  .map(url => url.replace(/\/+$/, '')); // Strips trailing slashes automatically
 
 app.use(helmet());
 
@@ -74,7 +77,16 @@ app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (server-to-server, curl, mobile apps)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    const cleanOrigin = origin.replace(/\/+$/, '');
+
+    // Allow exact matches in allowed origins list OR any Vercel preview URL (*.vercel.app)
+    const isAllowed = allowedOrigins.includes(cleanOrigin) || /\.vercel\.app$/.test(cleanOrigin);
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
     logger.warn('cors', `Blocked request from origin: ${origin}`);
     return callback(new Error('Not allowed by CORS'));
   },
