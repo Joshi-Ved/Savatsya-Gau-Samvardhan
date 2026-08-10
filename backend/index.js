@@ -109,7 +109,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint (checks DB connectivity)
+// Base endpoint (fixes 404 on base URL)
+app.get('/', (req, res) => {
+  res.status(200).send('Savatsya Gau Samvardhan API Server is running');
+});
+
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   const dbReady = mongoose.connection.readyState === 1;
   const status = dbReady ? 'OK' : 'DEGRADED';
@@ -121,7 +126,6 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
 // API routes — auth routes get stricter rate limiting
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/orders', orderRoutes);
