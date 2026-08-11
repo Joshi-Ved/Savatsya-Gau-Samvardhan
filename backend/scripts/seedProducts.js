@@ -73,16 +73,8 @@ const products = [
     }
 ];
 
-const seedProducts = async () => {
+export const seedProductsData = async (shouldExit = true) => {
     try {
-        if (!process.env.MONGO_URI) {
-            console.error('MONGO_URI is not defined in .env');
-            process.exit(1);
-        }
-
-        await mongoose.connect(process.env.MONGO_URI);
-        console.log('Connected to MongoDB');
-
         // Upsert products based on slug
         for (const product of products) {
             await Product.findOneAndUpdate(
@@ -94,11 +86,28 @@ const seedProducts = async () => {
         }
 
         console.log('Product seeding completed.');
-        process.exit(0);
+        if (shouldExit) process.exit(0);
     } catch (error) {
         console.error('Error seeding products:', error);
-        process.exit(1);
+        if (shouldExit) process.exit(1);
+        throw error;
     }
 };
 
-seedProducts();
+const runIfDirect = async () => {
+    const isDirect = process.argv[1] && (
+        process.argv[1].endsWith('seedProducts.js') || 
+        process.argv[1].endsWith('seedProducts')
+    );
+    if (isDirect) {
+        if (!process.env.MONGO_URI) {
+            console.error('MONGO_URI is not defined in .env');
+            process.exit(1);
+        }
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log('Connected to MongoDB');
+        await seedProductsData(true);
+    }
+};
+
+runIfDirect();

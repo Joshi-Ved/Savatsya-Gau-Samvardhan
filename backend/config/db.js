@@ -26,6 +26,20 @@ export async function connectDatabase() {
   try {
     await mongoose.connect(process.env.MONGO_URI, mongooseOptions);
     logger.info('database', `Connected to: ${mongoose.connection.name}`);
+    
+    // Auto-seed products if database is empty
+    try {
+      const Product = mongoose.model('Product');
+      const count = await Product.countDocuments();
+      if (count === 0) {
+        logger.info('database', 'Product collection is empty. Auto-seeding default products...');
+        const { seedProductsData } = await import('../scripts/seedProducts.js');
+        await seedProductsData(false);
+        logger.info('database', 'Auto-seeding products successful.');
+      }
+    } catch (seedErr) {
+      logger.error('database', 'Failed to check or auto-seed products', { error: seedErr.message });
+    }
   } catch (err) {
     logger.error('database', 'Connection failed', { error: err.message });
     logger.warn('database', 'Server continuing without database connection.');
