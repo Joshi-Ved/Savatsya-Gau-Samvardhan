@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|images/|api/|favicon\\.ico).*|[^.]+)$", "destination": "/index.html" }
   ],
   "headers": [
     {
