@@ -51,6 +51,7 @@ type AuthContextType = {
   serverError?: boolean;
   accessToken?: string | null;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string) => Promise<void>;
   register: (userData: Partial<User>, password: string) => Promise<void>;
   logout: () => void;
   updatePreferences: (prefs: UserPreferences) => void;
@@ -161,6 +162,91 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.warn('Failed to fetch full profile after login:', err);
+      }
+    } catch (err) {
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithGoogle = async (credential: string) => {
+    setIsLoading(true);
+    setServerError(false);
+    try {
+      const res = await fetch(API_ENDPOINTS.AUTH.GOOGLE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ credential })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Google authentication failed');
+
+      if (data.accessToken) {
+        setAccessToken(data.accessToken);
+        setToken(data.accessToken);
+      }
+
+      // Fetch user profile immediately using access token
+      try {
+        const meRes = await fetch(API_ENDPOINTS.USER.ME, {
+          headers: { Authorization: `Bearer ${data.accessToken}` }
+        });
+
+        if (meRes.ok) {
+          const me = await meRes.json();
+          setUser({
+            id: me.userId || data.userId || '',
+            name: me.name || data.name || data.email?.split('@')[0] || 'User',
+            email: me.email || data.email,
+            avatar: me.avatar || data.avatar || '',
+            phone: me.phone || '',
+            profilePicture: me.profilePicture || data.avatar || '',
+            preferences: me.preferences || {
+              theme: 'light',
+              language: 'en',
+              currency: 'INR',
+              notifications: { email: true, sms: true, push: true }
+            },
+            address: me.address || [],
+            isAdmin: me.isAdmin || data.isAdmin || false,
+          });
+        } else {
+          setUser({
+            id: data.userId || '',
+            name: data.name || data.email?.split('@')[0] || 'User',
+            email: data.email || '',
+            avatar: data.avatar || '',
+            profilePicture: data.avatar || '',
+            preferences: {
+              theme: 'light',
+              language: 'en',
+              currency: 'INR',
+              notifications: { email: true, sms: true, push: true }
+            },
+            address: [],
+            isAdmin: data.isAdmin || false,
+          });
+        }
+      } catch (err) {
+        console.warn('Failed to fetch full profile after Google login:', err);
+        setUser({
+          id: data.userId || '',
+          name: data.name || data.email?.split('@')[0] || 'User',
+          email: data.email || '',
+          avatar: data.avatar || '',
+          profilePicture: data.avatar || '',
+          preferences: {
+            theme: 'light',
+            language: 'en',
+            currency: 'INR',
+            notifications: { email: true, sms: true, push: true }
+          },
+          address: [],
+          isAdmin: data.isAdmin || false,
+        });
       }
     } catch (err) {
       throw err;
@@ -294,6 +380,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       serverError,
       accessToken,
       login,
+      loginWithGoogle,
       register,
       logout,
       updatePreferences,

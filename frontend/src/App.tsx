@@ -45,10 +45,10 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
   );
 };
 
-const LoginRoute = () => {
+const LoginRoute = ({ initialIsLogin = true }: { initialIsLogin?: boolean }) => {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return null;
-  return isAuthenticated ? <Navigate to="/" replace /> : <Login />;
+  return isAuthenticated ? <Navigate to="/" replace /> : <Login initialIsLogin={initialIsLogin} />;
 };
 
 const RequireAdmin = ({ children }: { children: JSX.Element }) => {
@@ -78,7 +78,7 @@ const ServerStatus = () => {
 const App = () => (
   <AppProviders>
     <ServerStatus />
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <BrowserRouter>
       <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-grow">
@@ -91,7 +91,9 @@ const App = () => (
                           <Route path="/products/:category" element={<Products />} />
                           <Route path="/product/:productId" element={<ProductDetail />} />
                           <Route path="/cart" element={<Cart />} />
-                          <Route path="/login" element={<LoginRoute />} />
+                          <Route path="/login" element={<LoginRoute initialIsLogin={true} />} />
+                          <Route path="/signup" element={<LoginRoute initialIsLogin={false} />} />
+                          <Route path="/register" element={<LoginRoute initialIsLogin={false} />} />
                           <Route path="/forgot-password" element={<ForgotPassword />} />
                           <Route path="/reset-password" element={<ResetPassword />} />
                           <Route

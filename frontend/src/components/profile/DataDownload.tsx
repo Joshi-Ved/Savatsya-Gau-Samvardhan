@@ -21,14 +21,22 @@ const DataDownload: React.FC<DataDownloadProps> = ({ trigger }) => {
     try {
       const { getAccessToken } = await import('@/lib/authToken');
       const token = getAccessToken();
-      if (token) {
+      if (!token) {
+        toast({
+          title: 'Authentication Error',
+          description: 'You must be logged in to download your data.',
+          variant: 'destructive'
+        });
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(API_ENDPOINTS.USER.DOWNLOAD_DATA, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-      }
 
       if (response.ok) {
         const blob = await response.blob();
@@ -36,7 +44,6 @@ const DataDownload: React.FC<DataDownloadProps> = ({ trigger }) => {
         const a = document.createElement('a');
         a.href = url;
         
-       
         const contentDisposition = response.headers.get('content-disposition');
         const filename = contentDisposition 
           ? contentDisposition.split('filename=')[1]?.replace(/"/g, '')

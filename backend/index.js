@@ -25,12 +25,17 @@ import { connectDatabase } from './config/db.js';
 import { globalErrorHandler } from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 
-// Load environment variables early
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables early from backend directory
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 dotenv.config();
 
 logger.info('startup', 'Environment loaded', {
   MONGO_URI: !!process.env.MONGO_URI,
   JWT_SECRET: !!process.env.JWT_SECRET,
+  GOOGLE_CLIENT_ID: !!process.env.GOOGLE_CLIENT_ID,
   SENDGRID_API_KEY: !!process.env.SENDGRID_API_KEY,
 });
 
@@ -52,7 +57,12 @@ const allowedOrigins = [
   .filter(Boolean)
   .map(url => url.replace(/\/+$/, '')); // Strips trailing slashes automatically
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // Global rate limiting
 const limiter = rateLimit({

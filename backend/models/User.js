@@ -54,7 +54,9 @@ const deletionScheduleSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: false },
+  googleId: { type: String, sparse: true },
+  isGoogleAuth: { type: Boolean, default: false },
   avatar: { type: String, default: null },
   name: { type: String },
   phone: { type: String },
@@ -80,13 +82,14 @@ const userSchema = new mongoose.Schema({
 
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
 
 userSchema.methods.comparePassword = function (candidatePassword) {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 

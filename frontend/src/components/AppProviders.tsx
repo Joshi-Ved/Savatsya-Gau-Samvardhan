@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
@@ -13,6 +14,7 @@ import InstallPrompt from '@/components/InstallPrompt';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
 const queryClient = new QueryClient();
+const googleClientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string) || '';
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -24,27 +26,30 @@ interface AppProvidersProps {
  */
 const AppProviders = ({ children }: AppProvidersProps) => (
   <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <AuthProvider>
-          <LanguageProvider>
-            <AnalyticsProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <InstallPrompt />
-                    {children}
-                  </TooltipProvider>
-                </WishlistProvider>
-              </CartProvider>
-            </AnalyticsProvider>
-          </LanguageProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <AnalyticsProvider>
+                <CartProvider>
+                  <WishlistProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <InstallPrompt />
+                      {children}
+                    </TooltipProvider>
+                  </WishlistProvider>
+                </CartProvider>
+              </AnalyticsProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   </ErrorBoundary>
 );
 
 export default AppProviders;
+

@@ -2,6 +2,8 @@ import express from 'express';
 import crypto from 'crypto';
 import mongoose from 'mongoose';
 import { z } from 'zod';
+import dotenv from 'dotenv';
+import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import { signToken, hashPassword, comparePassword, verifyToken, generateAuthTokens, verifyRefreshToken } from '../utils/auth.js';
 import { sendWelcomeEmail, sendPasswordResetEmail, sendPasswordResetConfirmationEmail } from '../utils/emailTemplates.js';
@@ -10,6 +12,7 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 import logger from '../utils/logger.js';
 
 const router = express.Router();
+const googleClient = new OAuth2Client();
 
 // --- Validation Schemas ---
 const registerSchema = z.object({
@@ -23,6 +26,10 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+const googleAuthSchema = z.object({
+  credential: z.string().min(1, 'Google credential token is required'),
+});
+
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
 });
@@ -31,6 +38,114 @@ const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
+
+router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res) => {
+  const { credential } = req.body;
+
+  let clientId = process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) {
+    dotenv.config();
+    clientId = process.env.GOOGLE_CLIENT_ID;
+  }
+
+  if (!clientId) {
+    logger.error('auth', 'Google Client ID is not configured on server (GOOGLE_CLIENT_ID missing in env)');
+    return res.status(500).json({ error: 'Google authentication is not configured on the server. Please set GOOGLE_CLIENT_ID in server environment variables.' });
+  }
+
+  let ticket;
+  try {
+    ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: clientId,
+    });
+  } catch (err) {
+    logger.error('auth', 'Failed to verify Google ID token', { error: err.message });
+    return res.status(401).json({ error: 'Invalid or expired Google token' });
+  }
+
+  const payload = ticket.getPayload();
+  if (!payload || !payload.email) {
+    return res.status(400).json({ error: 'Google account does not contain a verified email address' });
+  }
+
+  const { sub: googleId, email, name, picture } = payload;
+  const normalizedEmail = email.toLowerCase();
+
+  let user = await User.findOne({ email: normalizedEmail });
+
+  if (user) {
+    // Existing user: Link Google ID and update avatar/name if missing
+    let updated = false;
+    if (!user.googleId) {
+      user.googleId = googleId;
+      user.isGoogleAuth = true;
+      updated = true;
+    }
+    if (!user.name && name) {
+      user.name = name;
+      updated = true;
+    }
+    if (!user.avatar && picture) {
+      user.avatar = picture;
+      user.profilePicture = picture;
+      updated = true;
+    }
+    if (updated) {
+      await user.save();
+    }
+  } else {
+    // New user registered via Google
+    user = new User({
+      email: normalizedEmail,
+      name: name || normalizedEmail.split('@')[0],
+      avatar: picture || null,
+      profilePicture: picture || null,
+      googleId,
+      isGoogleAuth: true,
+    });
+    await user.save();
+
+    // Send welcome email (fire-and-forget)
+    try {
+      await sendWelcomeEmail(normalizedEmail, user.name || 'Valued Customer');
+      logger.info('auth', 'Welcome email sent to Google OAuth user', { email: normalizedEmail });
+    } catch (emailError) {
+      logger.warn('auth', 'Welcome email failed for Google OAuth user', { error: emailError.message });
+    }
+  }
+
+  const isAdmin = user.isAdmin || false;
+  // Generate access + refresh tokens
+  const { accessToken, refreshToken, tokenId } = generateAuthTokens(String(user._id), {
+    accessExpires: '20m',
+    refreshExpires: '30d',
+    isAdmin,
+  });
+
+  // Persist refresh token id on user for rotation/revocation
+  user.refreshTokens = user.refreshTokens || [];
+  user.refreshTokens.push({ tokenId, createdAt: new Date() });
+  await user.save();
+
+  // Set HttpOnly secure cookie for refresh token
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+  });
+
+  logger.info('auth', 'User logged in via Google OAuth', { email: user.email, userId: user._id });
+  return res.json({
+    accessToken,
+    email: user.email,
+    userId: user._id,
+    name: user.name,
+    avatar: user.avatar || user.profilePicture,
+    isAdmin,
+  });
+}));
 
 router.post('/register', validate(registerSchema), asyncHandler(async (req, res) => {
   const { email, password, name } = req.body;
