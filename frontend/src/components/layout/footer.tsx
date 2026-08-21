@@ -60,9 +60,9 @@ const Footer = () => {
           <div>
             <h4 className="font-medium mb-4 dark:text-[hsl(var(--footer-heading))]">Contact Us</h4>
             <address className="text-sawatsya-sand dark:text-[hsl(var(--footer-link))] text-sm not-italic">
-              Email: <a href="mailto:info@sawatsya.com" className="hover:text-white dark:hover:text-[hsl(var(--footer-link-hover))] transition-colors">info@sawatsya.com</a><br />
-              Phone: +91 9876543210<br />
-              Address: New Delhi, India
+              Email: <a href="mailto:vedjoshi0304@gmail.com" className="hover:text-white dark:hover:text-[hsl(var(--footer-link-hover))] transition-colors">vedjoshi0304@gmail.com</a><br />
+              Phone: +91 9588958811<br />
+              Address: Varade Gaon, Badlapur, Maharashtra, India
             </address>
           </div>
         </div>
