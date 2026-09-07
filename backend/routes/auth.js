@@ -65,7 +65,7 @@ router.post('/google', validate(googleAuthSchema), asyncHandler(async (req, res)
   }
 
   const payload = ticket.getPayload();
-  if (!payload || !payload.email) {
+  if (!payload || !payload.email || payload.email_verified !== true) {
     return res.status(400).json({ error: 'Google account does not contain a verified email address' });
   }
 
